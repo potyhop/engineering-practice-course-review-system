@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>项目介绍海报</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1654px; height: 2339px;
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+    background: #F4FAFB; color: #1A2B2E; overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+
+  /* ================= 头部 ================= */
+  .header {
+    position: relative; height: 400px; flex: 0 0 auto;
+    background: linear-gradient(135deg, #01343A 0%, #016D7C 60%, #028090 100%);
+    padding: 50px 84px 0; color: #fff; overflow: hidden;
+  }
+  .header .glow { position: absolute; border-radius: 50%;
+    background: radial-gradient(circle, rgba(2,195,154,.35), transparent 70%); }
+  .g1 { width: 600px; height: 600px; right: -170px; top: -220px; }
+  .g2 { width: 340px; height: 340px; right: 240px; bottom: -230px; opacity: .7; }
+  .kicker { font-size: 19px; letter-spacing: 6px; color: #02C39A; font-weight: 700; margin-bottom: 16px; }
+  .h1 { font-family: "Cambria", "SimSun", serif; font-size: 68px; font-weight: 700;
+        line-height: 1.12; letter-spacing: 2px; position: relative; z-index: 2; }
+  .sub { font-size: 24px; color: #C9EDEA; margin-top: 16px; line-height: 1.5;
+         position: relative; z-index: 2; max-width: 1120px; }
+  .tagrow { display: flex; gap: 12px; margin-top: 22px; position: relative; z-index: 2; }
+  .tag { font-size: 16px; padding: 7px 17px; border-radius: 999px;
+         background: rgba(2,195,154,.16); border: 1.5px solid #02C39A; color: #7FEBD4; }
+  .course { position: absolute; right: 84px; top: 54px; text-align: right;
+            font-size: 16px; color: #9FD6D2; line-height: 1.85; z-index: 2; }
+  .course b { color: #fff; font-size: 18px; }
+
+  /* ================= 内容区（自动均分间距） ================= */
+  .body-content {
+    flex: 1 1 auto; display: flex; flex-direction: column;
+    justify-content: space-between; padding-top: 30px; overflow: hidden;
+  }
+
+  /* ================= 通用 ================= */
+  .section { padding: 0 84px; flex: 0 0 auto; }
+  .sec-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .sec-num { width: 44px; height: 44px; border-radius: 11px; flex: 0 0 auto;
+    background: #028090; color: #fff; font-size: 21px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; font-family: "Cambria", serif; }
+  .sec-title { font-family: "Cambria", "SimSun", serif; font-size: 32px;
+    font-weight: 700; color: #01343A; letter-spacing: 1px; }
+  .sec-en { font-size: 14px; color: #7A9490; letter-spacing: 2px; margin-left: auto; }
+
+  /* ================= 痛点 ================= */
+  .pain-wrap { margin-top: 0; }
+  .pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .pain { background: #fff; border: 1.5px solid #DCEBEC; border-radius: 16px;
+          padding: 20px 24px 18px; position: relative; overflow: hidden; }
+  .pain::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 5px; background: #E0736B; }
+  .pain .icon { font-size: 27px; margin-bottom: 8px; }
+  .pain h3 { font-size: 22px; color: #01343A; margin-bottom: 8px; }
+  .pain p { font-size: 16px; color: #55706C; line-height: 1.55; }
+  .pain .num { font-family: "Cambria", serif; font-size: 38px; font-weight: 700;
+               color: #E0736B; margin-top: 10px; line-height: 1; }
+  .pain .num small { font-size: 15px; color: #7A9490; font-weight: 400; margin-left: 7px; }
+
+  /* ================= 方案 ================= */
+  .sol-wrap { margin-top: 0; }
+  .sol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .sol { background: #fff; border-radius: 16px; border: 1.5px solid #DCEBEC;
+         padding: 20px 24px; position: relative; overflow: hidden; }
+  .sol .bar { position: absolute; left: 0; top: 0; width: 100%; height: 5px; }
+  .sol h3 { font-size: 22px; color: #01343A; margin-bottom: 4px; }
+  .sol .en { font-size: 12px; color: #9AB2AE; letter-spacing: 1.5px; margin-bottom: 12px; }
+  .sol ul { list-style: none; }
+  .sol li { font-size: 16px; color: #3C5854; line-height: 1.45; padding-left: 22px;
+            position: relative; margin-bottom: 7px; }
+  .sol li::before { content: "✓"; position: absolute; left: 0; top: 0; color: #02A88E; font-weight: 700; }
+
+  /* ================= AI ================= */
+  .ai-wrap { margin-top: 0; }
+  .ai-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .ai { background: #01343A; border-radius: 14px; padding: 18px 18px 16px; color: #fff; }
+  .ai .glyph { font-size: 25px; margin-bottom: 8px; }
+  .ai h4 { font-size: 19px; margin-bottom: 6px; }
+  .ai p { font-size: 14.5px; line-height: 1.5; color: #A9CFCB; }
+  .ai .gain { display: inline-block; margin-top: 10px; font-size: 13px; color: #02C39A;
+              border: 1px solid #027D78; border-radius: 999px; padding: 4px 11px; }
+
+  /* ================= 架构 ================= */
+  .arch-wrap { margin-top: 0; }
+  .arch { background: #fff; border: 1.5px solid #DCEBEC; border-radius: 16px;
+          padding: 18px 26px; display: flex; align-items: center; }
+  .node { flex: 1; text-align: center; padding: 12px 8px; border-radius: 11px;
+          background: #F0F8F8; border: 1.5px solid #CFE4E3; }
+  .node .t { font-size: 18px; font-weight: 700; color: #01343A; margin-bottom: 5px; }
+  .node .d { font-size: 13.5px; color: #6C8A86; line-height: 1.45; }
+  .arrow { flex: 0 0 50px; text-align: center; font-size: 22px; color: #02A88E; }
+
+  /* ================= 底部 ================= */
+  .bottom-wrap { margin-top: 0; display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; }
+  .matrix { background: #fff; border: 1.5px solid #DCEBEC; border-radius: 16px; padding: 18px 22px; }
+  .matrix h3 { font-size: 21px; color: #01343A; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { font-size: 14.5px; padding: 7px 5px; text-align: center; border-bottom: 1px solid #E9F2F1; }
+  th { color: #6C8A86; font-weight: 700; font-size: 13.5px; }
+  td:first-child, th:first-child { text-align: left; color: #3C5854; }
+  .yes { color: #02A88E; font-weight: 700; }
+  .no { color: #C3D3D1; }
+
+  .tech { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-content: start; }
+  .chip { background: #fff; border: 1.5px solid #DCEBEC; border-radius: 13px; padding: 13px 15px; }
+  .chip .g { font-size: 21px; margin-bottom: 5px; }
+  .chip b { display: block; font-size: 16px; color: #01343A; margin-bottom: 3px; }
+  .chip span { font-size: 13px; color: #6C8A86; line-height: 1.45; display: block; }
+
+  /* ================= 数据条 ================= */
+  .stats { margin-top: 0; background: #016D7C; border-radius: 16px;
+           padding: 20px 30px; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat { text-align: center; color: #fff; border-right: 1px solid rgba(255,255,255,.18); }
+  .stat:last-child { border-right: none; }
+  .stat .v { font-family: "Cambria", serif; font-size: 40px; font-weight: 700; color: #02C39A; line-height: 1; }
+  .stat .l { font-size: 14px; color: #B7DBD7; margin-top: 7px; }
+
+  /* ================= 页脚 ================= */
+  .footer { margin-top: auto; flex: 0 0 auto; height: 112px;
+    background: #01343A; color: #9FD6D2; display: flex;
+    align-items: center; justify-content: space-between; padding: 0 84px; }
+  .footer .left { font-size: 16px; line-height: 1.6; }
+  .footer .left b { color: #fff; font-size: 18px; }
+  .footer .right { text-align: right; font-size: 15px; line-height: 1.6; }
+  .footer .right span { color: #02C39A; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="course"><b>工程项目认知实践</b><br>从 0 到 1·AI 应用开发</div>
+  <div class="kicker">COURSE REVIEW &amp; AI</div>
+  <div class="h1">课程详情与评价参考系统</div>
+  <div class="sub">补全选课阶段的课程简介、教师介绍与往届评价，<br>用 AI 能力降低信息获取成本，减少选课预期偏差。</div>
+  <div class="tagrow">
+    <div class="tag">AI 合规预审</div>
+    <div class="tag">AI 亮点提取</div>
+    <div class="tag">四角色权限</div>
+    <div class="tag">评价全生命周期</div>
+  </div>
+</div>
+
+<div class="body-content">
+
+<div class="section pain-wrap">
+  <div class="sec-head">
+    <div class="sec-num">01</div>
+    <div class="sec-title">痛点分析</div>
+    <div class="sec-en">PAIN POINTS</div>
+  </div>
+  <div class="pain-grid">
+    <div class="pain">
+      <div class="icon">📚</div>
+      <h3>课程简介缺失</h3>
+      <p>选课系统只显示课程名称和教师姓名，课程讲什么、怎么考核、有无先修要求，全部未知。</p>
+      <div class="num">87%<small>选课前拿不到课程大纲</small></div>
+    </div>
+    <div class="pain">
+      <div class="icon">👨‍🏫</div>
+      <h3>教师风格未知</h3>
+      <p>同一门课不同教师差异极大，但作业量、授课节奏、给分习惯在选课前毫无参考依据。</p>
+      <div class="num">72%<small>后悔源于预期不符</small></div>
+    </div>
+    <div class="pain">
+      <div class="icon">💬</div>
+      <h3>往届经验断层</h3>
+      <p>往届学生的真实体验无法传递给下一届，每届学生都在重复踩同样的坑。</p>
+      <div class="num">65%<small>希望参考往届评价</small></div>
+    </div>
+  </div>
+</div>
+
+<div class="section sol-wrap">
+  <div class="sec-head">
+    <div class="sec-num">02</div>
+    <div class="sec-title">解决方案</div>
+    <div class="sec-en">SOLUTION</div>
+  </div>
+  <div class="sol-grid">
+    <div class="sol">
+      <div class="bar" style="background:#028090"></div>
+      <h3>课程详情增强</h3>
+      <div class="en">COURSE PROFILE</div>
+      <ul>
+        <li>课程简介（教师维护 / 教务代录）</li>
+        <li>考核方式与成绩占比</li>
+        <li>教师个人介绍与研究方向</li>
+        <li>AI 自动生成课程亮点摘要</li>
+      </ul>
+    </div>
+    <div class="sol">
+      <div class="bar" style="background:#00A896"></div>
+      <h3>结构化评价体系</h3>
+      <div class="en">REVIEW SYSTEM</div>
+      <ul>
+        <li>四维评分：内容 / 节奏 / 互动 / 考核</li>
+        <li>标签体系，1–5 个关键词</li>
+        <li>评语 20–500 字，支持标签筛选</li>
+        <li>举报阈值自动隐藏，防止恶意刷评</li>
+      </ul>
+    </div>
+    <div class="sol">
+      <div class="bar" style="background:#02C39A"></div>
+      <h3>审核与治理</h3>
+      <div class="en">GOVERNANCE</div>
+      <ul>
+        <li>评价 / 介绍 / 回复三类审核队列</li>
+        <li>违规词直接隐藏，联系方式驳回修改</li>
+        <li>评教窗口期开关，非选课期只读</li>
+        <li>全量操作日志可追溯</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section ai-wrap">
+  <div class="sec-head">
+    <div class="sec-num">03</div>
+    <div class="sec-title">AI 能力</div>
+    <div class="sec-en">AI CAPABILITIES</div>
+  </div>
+  <div class="ai-grid">
+    <div class="ai">
+      <div class="glyph">🛡️</div>
+      <h4>合规预审</h4>
+      <p>提交即检测违规词与联系方式，自动分流隐藏或驳回。</p>
+      <div class="gain">人工审核量 ↓ 60%</div>
+    </div>
+    <div class="ai">
+      <div class="glyph">💡</div>
+      <h4>亮点提取</h4>
+      <p>聚类历史评价高频关键词，生成一句话课程亮点。</p>
+      <div class="gain">决策效率 ↑ 40%</div>
+    </div>
+    <div class="ai">
+      <div class="glyph">📊</div>
+      <h4>难度评估</h4>
+      <p>依据评价中的难度描述，自动生成课程难度标签。</p>
+      <div class="gain">预期偏差 ↓ 35%</div>
+    </div>
+    <div class="ai">
+      <div class="glyph">🎯</div>
+      <h4>个性化推荐</h4>
+      <p>结合专业背景与已修课程，推荐更匹配的选修课。</p>
+      <div class="gain">匹配度 ↑ 50%</div>
+    </div>
+  </div>
+</div>
+
+<div class="section arch-wrap">
+  <div class="sec-head">
+    <div class="sec-num">04</div>
+    <div class="sec-title">系统架构</div>
+    <div class="sec-en">ARCHITECTURE</div>
+  </div>
+  <div class="arch">
+    <div class="node"><div class="t">视图层</div><div class="d">课程列表 / 详情<br>评价表单 / 审核台</div></div>
+    <div class="arrow">➜</div>
+    <div class="node"><div class="t">逻辑层</div><div class="d">页面路由 render()<br>动作分发 handleAction()</div></div>
+    <div class="arrow">➜</div>
+    <div class="node"><div class="t">状态机</div><div class="d">草稿 → 待审 → 发布<br>驳回 / 隐藏 / 恢复</div></div>
+    <div class="arrow">➜</div>
+    <div class="node"><div class="t">数据层</div><div class="d">课程 · 评价 · 配置<br>单一数据源</div></div>
+    <div class="arrow">➜</div>
+    <div class="node"><div class="t">AI 规则</div><div class="d">违规词库 / 正则<br>亮点聚合</div></div>
+  </div>
+</div>
+
+<div class="section bottom-wrap">
+  <div class="matrix">
+    <h3>角色权限矩阵</h3>
+    <table>
+      <tr><th>功能</th><th>选课学生</th><th>修读学生</th><th>教师</th><th>教务</th></tr>
+      <tr><td>浏览课程与评价</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>提交评价</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td><td class="no">—</td></tr>
+      <tr><td>维护课程简介</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>回复学生评价</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td><td class="no">—</td></tr>
+      <tr><td>审核与配置</td><td class="no">—</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+    </table>
+  </div>
+  <div class="tech">
+    <div class="chip"><div class="g">📦</div><b>单文件零依赖</b><span>HTML + 内联 CSS/JS，双击即运行</span></div>
+    <div class="chip"><div class="g">🔄</div><b>完整状态机</b><span>草稿→待审→发布/驳回/隐藏</span></div>
+    <div class="chip"><div class="g">🚩</div><b>举报自动治理</b><span>达阈值自动下架，复核后恢复</span></div>
+    <div class="chip"><div class="g">⏰</div><b>窗口期控制</b><span>非评教期全局只读，杜绝刷评</span></div>
+  </div>
+</div>
+
+<div class="section stats">
+  <div class="stat"><div class="v">4</div><div class="l">角色权限体系</div></div>
+  <div class="stat"><div class="v">8</div><div class="l">核心功能模块</div></div>
+  <div class="stat"><div class="v">5</div><div class="l">评价状态流转</div></div>
+  <div class="stat"><div class="v">1</div><div class="l">单文件原型</div></div>
+</div>
+
+</div><!-- /body-content -->
+
+<div class="footer">
+  <div class="left"><b>课程详情与评价参考系统</b><br>工程项目认知实践 · 从 0 到 1 实现 AI 应用</div>
+  <div class="right">组员：<span>XXX　XXX　XXX</span><br>github.com/potyhop/engineering-practice-course-review-system</div>
+</div>
+
+</body>
+</html>
