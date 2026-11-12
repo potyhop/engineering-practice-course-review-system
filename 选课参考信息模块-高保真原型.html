@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选课参考信息模块 · 高保真原型</title>
+<style>
+:root{
+  --ink:#1f2733; --ink2:#4a5568; --ink3:#8a94a6;
+  --line:#e4e8f0; --line2:#eef1f7; --bg:#f4f6fa; --card:#fff;
+  --brand:#2f54eb; --brand2:#5b8cff; --brandweak:#eef3ff; --brandline:#cdd9fb;
+  --green:#169b62; --greenweak:#e7f7ef;
+  --amber:#b26100; --amberweak:#fdf3e2;
+  --red:#d84545; --redweak:#fdeeee;
+  --radius:12px; --shadow:0 4px 16px rgba(31,39,51,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.7}
+button{font-family:inherit;cursor:pointer}
+/* ===== layout ===== */
+.app{display:flex;min-height:100vh}
+.side{width:208px;flex:0 0 208px;background:#101d40;color:#c6d0ea;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.side .logo{padding:20px 20px 14px;font-size:15px;font-weight:700;color:#fff;line-height:1.4;border-bottom:1px solid rgba(255,255,255,.08)}
+.side .logo small{display:block;font-size:11px;color:#7e8db5;font-weight:400;margin-top:3px}
+.nav-group{padding:12px 10px;flex:1;overflow:auto}
+.nav-group .grp{font-size:11px;color:#6b7aa3;padding:10px 10px 5px;letter-spacing:.06em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;font-size:13.5px;color:#c6d0ea;cursor:pointer;margin-bottom:2px;user-select:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav-item.active{background:var(--brand);color:#fff;font-weight:600}
+.side .proto-note{padding:12px 16px;font-size:11px;color:#7e8db5;border-top:1px solid rgba(255,255,255,.08);line-height:1.6}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{background:#fff;border-bottom:1px solid var(--line);height:56px;display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:50}
+.topbar .crumb{font-size:14px;font-weight:600}
+.topbar .crumb small{font-weight:400;color:var(--ink3);margin-left:8px}
+.role-switch{margin-left:auto;display:flex;background:#f1f4fa;border:1px solid var(--line);border-radius:9px;padding:3px;gap:2px}
+.role-switch button{border:0;background:transparent;padding:6px 13px;border-radius:6px;font-size:12.5px;color:var(--ink2)}
+.role-switch button.on{background:var(--brand);color:#fff;font-weight:600;box-shadow:0 2px 6px rgba(47,84,235,.3)}
+.bell{position:relative;width:36px;height:36px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:16px;line-height:34px;text-align:center}
+.bell .dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1.5px solid #fff}
+.msg-panel{position:absolute;top:46px;right:0;width:330px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(20,30,60,.15);z-index:80;display:none;overflow:hidden}
+.msg-panel.open{display:block}
+.msg-panel .mp-h{padding:11px 15px;font-weight:700;border-bottom:1px solid var(--line2);font-size:13.5px;display:flex;justify-content:space-between}
+.msg-panel .mp-h span{font-weight:400;font-size:11.5px;color:var(--brand);cursor:pointer}
+.msg-item{padding:10px 15px;border-bottom:1px solid var(--line2);font-size:12.8px;color:var(--ink2)}
+.msg-item b{color:var(--ink)}
+.msg-item .t{color:var(--ink3);font-size:11px;margin-top:2px}
+.content{padding:22px 26px 60px;max-width:1080px;width:100%}
+/* ===== common ===== */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px 22px;margin-bottom:16px}
+.card h3{font-size:15.5px;margin-bottom:12px;display:flex;align-items:center;gap:9px}
+.page-title{font-size:19px;margin-bottom:4px}
+.page-sub{color:var(--ink3);font-size:13px;margin-bottom:18px}
+.btn{border:1px solid var(--brand);background:var(--brand);color:#fff;border-radius:8px;padding:7px 16px;font-size:13px}
+.btn:hover{background:#2342c8}
+.btn.ghost{background:#fff;color:var(--brand)}
+.btn.ghost:hover{background:var(--brandweak)}
+.btn.gray{background:#fff;color:var(--ink2);border-color:var(--line)}
+.btn.gray:hover{background:#f5f7fb}
+.btn.danger{background:#fff;color:var(--red);border-color:#e8b4b4}
+.btn.danger:hover{background:var(--redweak)}
+.btn.sm{padding:4px 11px;font-size:12px;border-radius:6px}
+.btn:disabled{background:#e2e6ee;border-color:#d6dcea;color:#98a2b3;cursor:not-allowed}
+.chip{display:inline-block;font-size:11.5px;border-radius:5px;padding:1px 9px;margin:0 5px 4px 0;background:var(--brandweak);color:var(--brand);border:1px solid #d5e0ff;cursor:pointer;user-select:none}
+.chip.gray{background:#f2f4f8;color:var(--ink3);border-color:#e3e7ee;cursor:default}
+.chip.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip.danger{background:var(--redweak);color:var(--red);border-color:#efc4c4}
+.badge{font-size:11px;font-weight:600;border-radius:5px;padding:1px 8px;white-space:nowrap}
+.bd-green{background:var(--greenweak);color:var(--green)} .bd-amber{background:var(--amberweak);color:var(--amber)}
+.bd-red{background:var(--redweak);color:var(--red)} .bd-blue{background:var(--brandweak);color:var(--brand)}
+.bd-gray{background:#f0f2f6;color:var(--ink3)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--line2);padding:10px 10px;text-align:left;vertical-align:top}
+th{color:var(--ink2);font-weight:600;background:#fafbfe;white-space:nowrap}
+tr:hover td{background:#fafbff}
+.star{color:#faa61a;letter-spacing:1px}
+.star .off{color:#dde3ee}
+.stars-input{font-size:22px;color:#faa61a;letter-spacing:3px;cursor:pointer;user-select:none;display:inline-block}
+label.fld{display:block;font-size:13px;font-weight:600;margin:14px 0 6px}
+label.fld .req{color:var(--red)}
+input[type=text],textarea,select{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 11px;font-size:13px;font-family:inherit;color:var(--ink)}
+input[type=text]:focus,textarea:focus,select:focus{outline:2px solid #b9ccfb;border-color:var(--brand)}
+textarea{resize:vertical;min-height:70px}
+.hint{font-size:11.5px;color:var(--ink3);margin-top:4px}
+.banner{border-radius:9px;padding:10px 15px;font-size:12.8px;margin-bottom:14px;border:1px solid}
+.banner.info{background:var(--brandweak);border-color:#bcd0fb;color:#1d39c4}
+.banner.warn{background:var(--amberweak);border-color:#ecd2a0;color:#7a4a00}
+.banner.ok{background:var(--greenweak);border-color:#a8ddc3;color:#0f6b46}
+.empty{border:1.5px dashed #cfd7e6;border-radius:10px;background:#fafbfd;padding:26px;text-align:center;color:var(--ink3);font-size:13px}
+.toast-wrap{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast{background:#1f2733;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.25);animation:tin .2s}
+@keyframes tin{from{opacity:0;transform:translateY(-8px)}to{opacity:1}}
+.modal-mask{position:fixed;inset:0;background:rgba(20,28,50,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:#fff;border-radius:14px;width:480px;max-width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.modal .m-h{padding:15px 20px;font-weight:700;font-size:15px;border-bottom:1px solid var(--line2);display:flex;justify-content:space-between}
+.modal .m-h .x{color:var(--ink3);cursor:pointer;font-weight:400}
+.modal .m-b{padding:18px 20px;max-height:62vh;overflow:auto}
+.modal .m-f{padding:12px 20px;border-top:1px solid var(--line2);display:flex;justify-content:flex-end;gap:9px;background:#fafbfe}
+.opt{border:1px solid var(--line);border-radius:8px;padding:9px 13px;margin-bottom:8px;cursor:pointer;font-size:13px}
+.opt:hover{border-color:var(--brand2);background:#fafbff}
+.opt.sel{border-color:var(--brand);background:var(--brandweak);font-weight:600}
+.toggle{display:inline-block;width:38px;height:21px;border-radius:999px;background:var(--brand);position:relative;cursor:pointer;vertical-align:middle}
+.toggle i{position:absolute;top:2px;left:19px;width:17px;height:17px;border-radius:50%;background:#fff;transition:left .15s}
+.toggle.off{background:#c2cad8}.toggle.off i{left:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg span{padding:6px 15px;font-size:12.8px;cursor:pointer;background:#fff;color:var(--ink2);border-right:1px solid var(--line);user-select:none}
+.seg span:last-child{border-right:0}.seg span.on{background:var(--brand);color:#fff;font-weight:600}
+/* student list */
+.filterbar{display:flex;gap:9px;align-items:center;margin-bottom:15px;flex-wrap:wrap}
+.filterbar input{width:250px}
+.fcat{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font-size:12.5px;color:var(--ink2)}
+.fcat.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.crow{border:1px solid var(--line);border-radius:11px;padding:14px 18px;margin-bottom:11px;background:#fff;cursor:pointer;transition:.12s}
+.crow:hover{border-color:var(--brand2);box-shadow:0 5px 16px rgba(47,84,235,.1);transform:translateY(-1px)}
+.crow .r1{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.crow .r1 b{font-size:15px}
+.crow .r1 .meta{font-size:12px;color:var(--ink3)}
+.crow .score{color:#fa8c16;font-weight:700;font-size:15px;white-space:nowrap}
+.crow .score small{color:var(--ink3);font-weight:400;font-size:11px}
+.crow .score.none{color:var(--ink3);font-weight:400;font-size:12.5px}
+.crow .oneliner{font-size:12.8px;color:var(--ink2);margin:5px 0}
+/* detail */
+.dh{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:4px}
+.dh h2{font-size:21px}
+.dh .m{font-size:12.8px;color:var(--ink3);margin-top:5px}
+.dtabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:16px 0 18px}
+.dtab{padding:10px 18px;font-size:14px;color:var(--ink2);cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1px;user-select:none}
+.dtab.on{color:var(--brand);border-bottom-color:var(--brand);font-weight:700}
+.dpane{display:none}.dpane.on{display:block}
+.sec-t{font-size:13.5px;font-weight:700;color:var(--brand);margin:16px 0 6px}
+.week{display:flex;gap:10px;align-items:center;font-size:12.8px;color:var(--ink2);padding:5px 0;border-bottom:1px dashed var(--line2)}
+.week .wk{width:38px;height:23px;background:var(--brandweak);color:var(--brand);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:0 0 38px}
+.tcard{display:flex;gap:16px}
+.ava{width:66px;height:66px;border-radius:50%;background:linear-gradient(135deg,#8fb0ff,#2f54eb);color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600;flex:0 0 66px}
+.rsum{display:grid;grid-template-columns:160px 1fr;gap:20px;background:#fafbfe;border:1px solid var(--line);border-radius:11px;padding:17px 19px;margin-bottom:15px}
+.scorebig{font-size:40px;font-weight:700;color:#fa8c16;line-height:1.15}
+.scorebig small{display:block;font-size:11.5px;color:var(--ink3);font-weight:400}
+.dim{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:3px 0}
+.dim .dl{width:62px;color:var(--ink2);flex:0 0 62px}
+.bar{flex:1;height:7px;background:#edf0f6;border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#ffc04a,#fa8c16)}
+.dim .dv{width:30px;text-align:right;color:var(--ink2)}
+.review{border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:10px;background:#fff}
+.review .rh{display:flex;justify-content:space-between;font-size:12px;color:var(--ink3);margin-bottom:3px}
+.review .rb{font-size:13.2px;margin:5px 0}
+.review .ra{margin-top:8px;font-size:12.5px}
+.reply{margin-top:9px;background:#f3f7ff;border:1px solid #d7e4ff;border-radius:8px;padding:9px 12px;font-size:12.8px}
+.reply.pending{background:#faf7ef;border-color:#ecdcb9}
+.rv-actions{margin-top:7px;display:flex;gap:12px}
+.rv-actions span{font-size:12px;color:var(--ink3);cursor:pointer}
+.rv-actions span:hover{color:var(--red)}
+.filterrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:12.5px;margin-bottom:12px}
+.filterrow .fchk{border:1px solid var(--line);border-radius:6px;padding:3px 11px;background:#fff;cursor:pointer;color:var(--ink2)}
+.filterrow .fchk.on{background:var(--brandweak);border-color:var(--brandline);color:var(--brand);font-weight:600}
+/* form bits */
+.starline{display:flex;align-items:center;gap:12px;margin:7px 0}
+.starline .dl{width:72px;font-size:13px;color:var(--ink2)}
+.form-grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 22px}
+.assrow{display:flex;gap:9px;align-items:center;margin-bottom:7px}
+.assrow input[type=text]{flex:1}.assrow input.pct{width:74px;flex:0 0 74px}
+.kvline{font-size:13px;color:var(--ink2);margin:4px 0}
+.kvline b{color:var(--ink)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.statgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:17px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px 17px}
+.stat .n{font-size:25px;font-weight:700;color:var(--brand)}
+.stat .l{font-size:12px;color:var(--ink3)}
+.stat.warn .n{color:var(--amber)}.stat.red .n{color:var(--red)}.stat.green .n{color:var(--green)}
+.subtabs{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap}
+.subtab{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 15px;font-size:13px;color:var(--ink2)}
+.subtab.on{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.subtab .cnt{display:inline-block;background:rgba(0,0,0,.12);border-radius:999px;font-size:11px;padding:0 7px;margin-left:5px}
+.subtab.on .cnt{background:rgba(255,255,255,.25)}
+.logline{font-size:12.6px;color:var(--ink2);padding:8px 2px;border-bottom:1px dashed var(--line2)}
+.logline b{color:var(--ink)}.logline .t{color:var(--ink3);font-size:11.5px;margin-right:8px}
+.switchline{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line2)}
+.switchline:last-child{border-bottom:0}
+.switchline .sl-t{font-size:13.3px;font-weight:600}
+.switchline .sl-d{font-size:12px;color:var(--ink3)}
+@media(max-width:1000px){.rsum{grid-template-columns:1fr}.statgrid{grid-template-columns:repeat(2,1fr)}.form-grid2,.two-col{grid-template-columns:1fr}.side{width:64px;flex-basis:64px}.nav-item span.lbl,.grp,.proto-note,.logo small{display:none}.logo{font-size:12px;text-align:center}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="logo">选课参考信息<small>高保真可点击原型 v0.1</small></div>
+    <nav class="nav-group" id="navGroup"></nav>
+    <div class="proto-note">原型说明：全部为模拟数据。TBD 项按 PRD 建议值演示：评分门槛 5 条、评价窗口 14 天、举报自动隐藏阈值 3、标签最多 5 个、评语 20–500 字。</div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb" id="crumb"></div>
+      <div class="role-switch" id="roleSwitch">
+        <button data-role="student" class="on">选课学生</button>
+        <button data-role="eligible">修读学生</button>
+        <button data-role="teacher">授课教师</button>
+        <button data-role="admin">教务管理</button>
+      </div>
+      <div class="bell" id="bell">🔔<span class="dot" id="bellDot" style="display:none"></span>
+        <div class="msg-panel" id="msgPanel"></div>
+      </div>
+    </div>
+    <div class="content" id="app"></div>
+  </div>
+</div>
+<div class="toast-wrap" id="toastWrap"></div>
+<div id="modalRoot"></div>
+
+<script>
+"use strict";
+/* ================= 模拟数据 ================= */
+var TAGS_POOL = ["课堂讨论多","阅读量大","作业/论文多","点名频繁","考核透明","适合零基础","需要先修基础","贴近实务","节奏偏快","给分友好","不点名","论文有挑战"];
+var WORKLOAD = ["很少","较少","适中","较多","很多"];
+var DIMS = [{k:"content",l:"内容质量"},{k:"clarity",l:"讲授清晰"},{k:"gain",l:"学习收获"},{k:"assess",l:"考核合理"}];
+var REPORT_REASONS = ["人身攻击","广告引流/联系方式","与课程无关","代写/学术不端","其他"];
+var REJECT_REASONS = ["含联系方式/引流信息","针对个人的攻击性表述","违法违规或敏感词","无意义刷屏内容","与课程无关"];
+
+function rv(id,sem,who,wl,dims,tags,text,extra){
+  return Object.assign({id:id,status:"published",semester:sem,who:who,workload:wl,dims:dims,tags:tags,text:text,reply:null,reports:0,mine:false,reportReasons:[]},extra||{});
+}
+var DATA = {
+  tags: TAGS_POOL.slice(),
+  tagDisabled: [],
+  cfg: {N:5, reportThreshold:3, windowDays:14, windowOpen:true, words:["代写","包过","加微信"]},
+  teachers: {
+    t1:{id:"t1",name:"王雪梅",title:"教授",dept:"社会学院",dirs:["城市社会学","社区研究","质性方法"],edu:"北京大学社会学博士",style:"课堂以讨论为主，希望同学带着生活中的观察来上课；阅读材料不少，但会给导读问题，不考死记硬背。期待愿意表达、也愿意倾听他人的同学。",profileStatus:"published"},
+    t2:{id:"t2",name:"张远",title:"副教授",dept:"信息管理学院",dirs:["数据可视化","信息设计"],edu:"浙江大学计算机博士",style:"重视动手，每次作业都围绕真实数据；讲解偏快，适合有一定表格软件或编程基础的同学。",profileStatus:"published"},
+    t3:{id:"t3",name:"李晨",title:"讲师",dept:"心理与认知科学学院",dirs:["社会心理学"],edu:"华东师范大学心理学博士",style:"",profileStatus:"missing"}
+  },
+  courses:[
+    {id:"c1",name:"社会学导论",teacherId:"t1",time:"周三 3-4节",cat:"通识核心",credits:2,left:23,total:120,campus:"东校区",semester:"2026春",isNew:false,
+      introStatus:"published", introVersion:"2025秋", introByAdmin:false,
+      intro:{summary:"从个体与社会的关系出发，介绍社会学的基本概念与分析视角，包括社会化、群体与组织、阶层、性别、城市等议题；课程以日常现象为切口，训练学生用社会学想象力解释身边的社会事实。",
+        objectives:["能用社会学核心概念分析日常社会现象","掌握经典理论的基本问题意识","完成一次小型观察研究并形成论文"],
+        weeks:[["W1","导论：什么是社会学想象力"],["W3","社会化与自我：我们如何成为社会人"],["W7","社会分层与流动（含课堂辩论）"],["W12","城市、空间与日常生活"],["W16","期末小论文答辩"]],
+        assessment:[["平时出勤与课堂参与",15],["阅读笔记（4次）",25],["期中测验",20],["期末小论文",40]],
+        fit:"适合零基础、对社会议题有好奇心的同学；每周阅读约 30–50 页；无先修课程要求；课堂讨论占比较高。"},
+      reviews:[
+        rv("r1","2025秋","选课学生（匿名）","较多",{content:5,clarity:5,gain:5,assess:4},["课堂讨论多","阅读量大","适合零基础"],"每周围读一篇经典文献并写笔记，开始会累，但期中之后看社会新闻的视角完全不一样。老师不点名，但讨论课不发言会有点尴尬，社恐同学可以先想好转述别人观点再开口。",
+          {reply:{text:"谢谢反馈。春季学期起我会在讨论课前发布「发言备选问题」，降低第一次开口的门槛：）",status:"published"}}),
+        rv("r2","2025秋","社会学系 · 大三（自愿公开年级专业）","适中",{content:4,clarity:4,gain:5,assess:4},["不点名","论文有挑战"],"期末论文想拿高分需要真的做田野，老师批注很细。不建议抱着「水通识」心态选，但想认真学东西非常推荐。"),
+        rv("r3","2024秋","选课学生（匿名）","很多",{content:4,clarity:4,gain:4,assess:4},["阅读量大"],""),
+        rv("r4","2025秋","选课学生（匿名）","适中",{content:5,clarity:4,gain:5,assess:5},["课堂讨论多","考核透明","适合零基础"],"考核标准第一节课就讲得很清楚，阅读笔记有统一的评分表，不会到期末才知道怎么被打分。"),
+        rv("r5","2024秋","新闻学院 · 大二","较少",{content:4,clarity:5,gain:4,assess:4},["课堂讨论多","给分友好"],"作为外专业同学也能跟上，案例多来自热点新闻，有代入感。"),
+        rv("r6","2025春","选课学生（匿名）","较多",{content:5,clarity:4,gain:4,assess:3},["阅读量大","节奏偏快"],"内容很好但前期理论密度大，建议课前一定读材料，不然讨论课跟不上。")
+      ]},
+    {id:"c2",name:"数据可视化基础",teacherId:"t2",time:"周四 1-2节",cat:"专业选修",credits:2,left:8,total:60,campus:"西校区",semester:"2026春",isNew:false,
+      introStatus:"published", introVersion:"2026春",
+      intro:{summary:"从数据清洗到图表叙事，系统学习常见图表的选型原则与可视化工具，期末以小组作品答辩为主。",
+        objectives:["理解视觉编码与图表选型","能独立完成一份数据叙事作品"],
+        weeks:[["W2","数据类型与清洗基础"],["W6","图表选型与视觉编码"],["W10","交互式仪表盘"],["W15","期末作品答辩"]],
+        assessment:[["平时作业",30],["期中实作",20],["期末作品与答辩",50]],
+        fit:"需要基础表格软件经验；有简单编程基础更轻松；每周课外投入约 4–6 小时。"},
+      reviews:[
+        rv("r7","2025春","选课学生（匿名）","较多",{content:4,clarity:4,gain:5,assess:4},["贴近实务","作业/论文多","需要先修基础"],"作业都用真实数据集，做完可以直接放进作品集。没有基础的同学前两周会吃力。"),
+        rv("r8","2025春","信息管理学院 · 大二","适中",{content:5,clarity:4,gain:5,assess:4},["贴近实务","考核透明"],"答辩公平，现场打分，能学到别人怎么做。"),
+        rv("r9","2024秋","选课学生（匿名）","很多",{content:4,clarity:3,gain:4,assess:3},["作业/论文多","节奏偏快"],"讲得偏快，零基础慎选，作业量比想象大。"),
+        /* 当前修读学生一条被驳回、需修改的评价 */
+        rv("r10","2025秋","我（社会学系 · 大三）","较多",{content:3,clarity:3,gain:3,assess:2},["作业/论文多","节奏偏快"],"作业太多了，老师 xxx，想交流的加我微信 wx_xxxxx",{status:"revise",mine:true,rejectReasons:["含联系方式/引流信息","针对个人的攻击性表述"]})
+      ]},
+    {id:"c3",name:"心理学与生活",teacherId:"t3",time:"周二 7-8节",cat:"通识选修",credits:2,left:40,total:100,campus:"东校区",semester:"2026春",isNew:true,
+      introStatus:"missing", introVersion:null, intro:null, reviews:[]},
+    {id:"c4",name:"城市研究专题",teacherId:"t1",time:"周一 9-10节",cat:"专业选修",credits:2,left:15,total:40,campus:"东校区",semester:"2026春",isNew:false,
+      introStatus:"missing", introVersion:null, intro:null,
+      reviews:[
+        rv("r11","2025春","选课学生（匿名）","较多",{content:5,clarity:4,gain:5,assess:4},["阅读量大","课堂讨论多"],"小班研讨，需要自己选一个城市议题做学期追踪。"),
+        rv("r12","2025春","社会学院 · 研一","适中",{content:4,clarity:5,gain:4,assess:4},["贴近实务"],"会请到社区工作者做分享，田野机会多。"),
+        rv("r13","2025春","选课学生（匿名）","适中",{content:4,clarity:4,gain:4,assess:4},["适合零基础"],"跨专业友好。",{reports:1,reportReasons:["其他"]})
+      ]}
+  ],
+  logs:[
+    {t:"2026-10-20 09:12",text:"教务通过了 <b>张远</b> 提交的《数据可视化基础》2026春 课程介绍"},
+    {t:"2026-10-21 15:40",text:"学生对评价 r13 发起举报（其他），待处理"}
+  ]
+};
+
+/* ================= 状态 ================= */
+var state = {
+  role:"student",                 // student / eligible / teacher / admin
+  page:"list",
+  detailId:"c1",
+  detailTab:"intro",
+  reviewFilter:{tags:{},onlyText:false},
+  auditTab:"review",
+  draft:null,
+  draftCourseId:null,
+  editingReviewId:null,
+  msgs:{
+    student:[],
+    eligible:[
+      {title:"邀请你评价《社会学导论》（2025 秋）",body:"评价窗口开放 14 天，默认匿名，你的评价将帮助下一届同学选课。",t:"刚刚"},
+      {title:"你的评价未通过审核：《数据可视化基础》",body:"命中「含联系方式/引流信息、针对个人的攻击性表述」，请修改后重新提交。",t:"昨天 18:02"}
+    ],
+    teacher:[
+      {title:"本周评价摘要",body:"《社会学导论》本周新增 2 条已发布评价，其中 1 条待你回复。",t:"周一 08:30"},
+      {title:"请尽快维护 2026 春课程介绍",body:"《城市研究专题》尚未维护课程介绍，距选课开放还有 7 天。",t:"2 天前"}
+    ],
+    admin:[
+      {title:"有 2 条内容待人工审核",body:"评价队列 1 条、举报队列 1 条。",t:"10 分钟前"},
+      {title:"《城市研究专题》信息完整度低",body:"教师未维护课程介绍，已进入待补录清单。",t:"2 天前"}
+    ]
+  }
+};
+var NAV = {
+  student:[{g:"选课端",items:[["list","📚 选课列表"],["mine","📝 我的评价"]]}],
+  eligible:[{g:"选课端",items:[["list","📚 选课列表"],["review","✍️ 评价课程"],["mine","📝 我的评价"]]}],
+  teacher:[{g:"教师端",items:[["tcourses","📖 我的课程"],["treviews","💬 评价与回复"],["tprofile","👤 教师介绍"]]}],
+  admin:[{g:"教务后台",items:[["audit","🛠️ 审核工作台"],["tags","🏷️ 标签库管理"],["config","⚙️ 规则与窗口期"],["log","📋 操作日志"]]}]
+};
+var CRUMB = {list:"选课列表",mine:"我的评价",review:"评价课程",detail:"课程详情",tcourses:"我的课程",treviews:"评价与回复",tprofile:"教师介绍",audit:"审核工作台",tags:"标签库管理",config:"规则与窗口期",log:"操作日志",editIntro:"维护课程介绍",reply:"回复评价",adminEdit:"教务代录课程介绍"};
+
+/* ================= 工具 ================= */
+function $(s,p){return (p||document).querySelector(s);}
+function $all(s,p){return Array.prototype.slice.call((p||document).querySelectorAll(s));}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function course(id){return DATA.courses.filter(function(c){return c.id===id;})[0]||DATA.courses[0];}
+function teacher(tid){return DATA.teachers[tid];}
+function publishedReviews(c){return c.reviews.filter(function(r){return r.status==="published";});}
+function dimAvg(list,k){if(!list.length)return 0;return list.reduce(function(a,r){return a+r.dims[k];},0)/list.length;}
+function reviewAvg(r){return (r.dims.content+r.dims.clarity+r.dims.gain+r.dims.assess)/4;}
+function courseScore(c){var l=publishedReviews(c);if(l.length<DATA.cfg.N)return null;return l.reduce(function(a,r){return a+reviewAvg(r);},0)/l.length;}
+function fmt1(n){return (Math.round(n*10)/10).toFixed(1);}
+function tagCount(c){var m={};publishedReviews(c).forEach(function(r){r.tags.forEach(function(t){if(DATA.tagDisabled.indexOf(t)<0)m[t]=(m[t]||0)+1;});});return Object.keys(m).map(function(t){return [t,m[t]];}).sort(function(a,b){return b[1]-a[1];});}
+function wlDist(c){var m={};publishedReviews(c).forEach(function(r){m[r.workload]=(m[r.workload]||0)+1;});return m;}
+function myReviews(){var mine=[];DATA.courses.forEach(function(c){c.reviews.forEach(function(r){if(r.mine)mine.push({c:c,r:r});});});return mine;}
+function toast(msg){var w=$("#toastWrap");var d=document.createElement("div");d.className="toast";d.textContent=msg;w.appendChild(d);setTimeout(function(){d.remove();},2400);}
+function addLog(text){var d=new Date();var pad=function(n){return ("0"+n).slice(-2);};DATA.logs.unshift({t:"2026-10-24 "+pad(d.getHours())+":"+pad(d.getMinutes()),text:text});}
+function pushMsg(role,title,body){state.msgs[role].unshift({title:title,body:body,t:"刚刚"});renderBell();}
+function go(page,p){state.page=page;if(p)Object.assign(state,p);render();window.scrollTo(0,0);}
+function statusBadge(s){return {published:'<span class="badge bd-green">已发布</span>',pending:'<span class="badge bd-amber">待审核</span>',revise:'<span class="badge bd-red">需修改</span>',hidden:'<span class="badge bd-gray">已隐藏</span>'}[s]||s;}
+
+/* ================= 导航 / 角色 ================= */
+function renderNav(){
+  var groups=NAV[state.role],h="";
+  groups.forEach(function(grp){
+    h+='<div class="grp">'+grp.g+'</div>';
+    grp.items.forEach(function(it){
+      var on=state.page===it[0]||(it[0]==="list"&&state.page==="detail")?"active":"";
+      h+='<div class="nav-item '+on+'" data-go="'+it[0]+'"><span>'+it[1].split(" ")[0]+'</span><span class="lbl">'+it[1].split(" ")[1]+'</span></div>';
+    });
+  });
+  $("#navGroup").innerHTML=h;
+  $("#crumb").innerHTML=CRUMB[state.page]+"<small>"+({student:"选课学生视角",eligible:"修读学生视角 · 成绩已发布",teacher:"授课教师视角 · 王雪梅",admin:"教务管理员视角"}[state.role])+"</small>";
+  $all(".role-switch button").forEach(function(b){b.classList.toggle("on",b.dataset.role===state.role);});
+}
+document.addEventListener("click",function(e){
+  var goEl=e.target.closest("[data-go]");
+  if(goEl){go(goEl.dataset.go);return;}
+  var actEl=e.target.closest("[data-act]");
+  if(actEl){handleAction(actEl,e);return;}
+  if(!e.target.closest("#bell")){$("#msgPanel").classList.remove("open");}
+});
+$all(".role-switch button").forEach(function(b){
+  b.addEventListener("click",function(){
+    state.role=b.dataset.role;
+    state.page={student:"list",eligible:"list",teacher:"tcourses",admin:"audit"}[state.role];
+    state.detailTab="intro";state.auditTab="review";
+    render();
+  });
+});
+$("#bell").addEventListener("click",function(e){
+  e.stopPropagation();
+  if(e.target.closest('[data-act="readAll"]')){state.msgs[state.role]=[];renderBell(true);return;}
+  renderBell(true);$("#msgPanel").classList.toggle("open");
+});
+
+function renderBell(open){
+  var list=state.msgs[state.role]||[];
+  $("#bellDot").style.display=list.length?"":"none";
+  $("#msgPanel").innerHTML='<div class="mp-h">消息中心 <span data-act="readAll">全部已读</span></div>'+
+    (list.length?list.map(function(m){return '<div class="msg-item"><b>'+esc(m.title)+'</b><div>'+esc(m.body)+'</div><div class="t">'+esc(m.t)+'</div></div>';}).join(""):'<div class="msg-item">暂无消息</div>');
+  if(open)$("#msgPanel").classList.add("open");
+}
+
+/* ================= 学生：列表 ================= */
+var listFilter={q:"",cat:"全部"};
+function viewList(){
+  var cats=["全部","通识核心","通识选修","专业选修","新开课"];
+  var rows=DATA.courses.filter(function(c){
+    if(listFilter.q && (c.name.indexOf(listFilter.q)<0 && teacher(c.teacherId).name.indexOf(listFilter.q)<0))return false;
+    if(listFilter.cat==="新开课")return c.isNew;
+    if(listFilter.cat!=="全部" && c.cat!==listFilter.cat)return false;
+    return true;
+  });
+  var h='<div class="page-title">通识与专业选修课 · 2026 春选课开放中</div>'+
+    '<div class="page-sub">在原有课程信息基础上，新增评分、标签与课程/教师详情，帮助你在选课前建立准确预期。</div>'+
+    '<div class="filterbar"><input type="text" id="listSearch" placeholder="搜索课程名或教师姓名" value="'+esc(listFilter.q)+'">'+
+    cats.map(function(c){return '<button class="fcat '+(listFilter.cat===c?"on":"")+'" data-act="filterCat" data-cat="'+c+'">'+c+'</button>';}).join("")+'</div>';
+  if(!rows.length){h+='<div class="empty">没有符合条件的课程</div>';}
+  rows.forEach(function(c){
+    var t=teacher(c.teacherId),sc=courseScore(c),tc=tagCount(c).slice(0,3);
+    h+='<div class="crow" data-act="openDetail" data-id="'+c.id+'">'+
+      '<div class="r1"><div><b>'+esc(c.name)+'</b> <span class="meta">'+esc(t.name)+' · '+esc(c.time)+' · 余 '+c.left+'/'+c.total+'</span>'+(c.isNew?' <span class="badge bd-blue">新开课</span>':'')+'</div>'+
+      (sc===null?'<span class="score none">'+(c.isNew?"新开课 · 暂无评分":"评价不足 "+DATA.cfg.N+" 条 · 暂无评分")+'</span>':'<span class="score">'+fmt1(sc)+'<small> / '+publishedReviews(c).length+' 条</small></span>')+'</div>'+
+      '<div class="oneliner">'+(c.intro?esc(c.intro.summary.slice(0,58))+"……":'<span style="color:#b08030">课程介绍待补充</span>')+'</div>'+
+      '<div>'+tc.map(function(x){return '<span class="chip">'+esc(x[0])+' '+x[1]+'</span>';}).join("")+(c.isNew?'<span class="chip gray">暂无标签</span>':'')+'<span class="chip gray" style="cursor:pointer">查看详情 ›</span></div></div>';
+  });
+  return h;
+}
+
+/* ================= 学生：详情 ================= */
+function starsHtml(score){var n=Math.round(score);var s="";for(var i=1;i<=5;i++)s+=i<=n?"★":'<span class="off">★</span>';return '<span class="star">'+s+'</span>';}
+function viewDetail(){
+  var c=course(state.detailId),t=teacher(c.teacherId),sc=courseScore(c),list=publishedReviews(c);
+  var h='<div class="card"><div class="dh"><div><h2>'+esc(c.name)+'</h2>'+
+    '<div class="m">'+esc(c.cat)+' · '+c.credits+' 学分 · '+esc(c.time)+' · '+esc(c.campus)+' · 容量余 '+c.left+'/'+c.total+' · 授课教师：<b style="color:var(--ink2)">'+esc(t.name)+'</b></div></div>'+
+    '<div style="align-self:flex-start"><button class="btn" data-act="enroll">去选课（现有系统）</button></div></div>';
+  if(c.introStatus==="pending")h+=c.intro?'<div class="banner info">教师已提交 '+c.semester+' 学期新版本介绍，审核通过后更新；当前仍展示 '+esc(c.introVersion)+' 已发布版本。</div>':'<div class="banner info">教师已提交 '+c.semester+' 学期课程介绍，教务审核通过后公开展示。</div>';
+  if(c.introStatus==="missing")h+='<div class="banner warn">该课程教师暂未维护课程介绍，教务已收到待补录提醒。你仍可在「学生评价」查看往期反馈（如有）。</div>';
+  if(c.introStatus==="rejected")h+=c.intro?'<div class="banner info">教师已提交的新版本介绍正在修改中，当前展示 '+esc(c.introVersion)+' 已发布版本。</div>':'<div class="banner warn">课程介绍暂未发布，教务已收到待补录提醒。</div>';
+  h+='<div class="dtabs"><div class="dtab '+(state.detailTab==="intro"?"on":"")+'" data-act="dtab" data-tab="intro">课程介绍</div>'+
+    '<div class="dtab '+(state.detailTab==="teacher"?"on":"")+'" data-act="dtab" data-tab="teacher">授课教师</div>'+
+    '<div class="dtab '+(state.detailTab==="review"?"on":"")+'" data-act="dtab" data-tab="review">学生评价'+(sc!==null?' <span style="color:#fa8c16;font-weight:700">'+fmt1(sc)+'</span>':'')+'</div></div>';
+
+  /* 课程介绍 */
+  h+='<div class="dpane '+(state.detailTab==="intro"?"on":"")+'">';
+  if(!c.intro){
+    h+='<div class="empty"><div style="font-size:15px;margin-bottom:6px">📭 课程介绍待补充</div>'+
+       '教师尚未提交《'+esc(c.name)+'》的课程介绍，系统已提醒教师并进入教务补录清单。<br>你可以先查看学生评价，或在选课时向开课院系咨询。</div>';
+  }else{
+    h+='<div class="sec-t">内容简介</div><p>'+esc(c.intro.summary)+'</p>'+
+      '<div class="sec-t">教学目标</div><ul style="padding-left:20px">'+c.intro.objectives.map(function(o){return '<li>'+esc(o)+'</li>';}).join("")+'</ul>'+
+      '<div class="sec-t">课程安排（节选）</div>'+c.intro.weeks.map(function(w){return '<div class="week"><span class="wk">'+esc(w[0])+'</span>'+esc(w[1])+'</div>';}).join("")+
+      '<div class="sec-t">考核方式与成绩构成（合计 100%）</div><table><tr>'+c.intro.assessment.map(function(a){return '<th>'+esc(a[0])+'</th>';}).join("")+'</tr><tr>'+c.intro.assessment.map(function(a){return '<td>'+a[1]+'%</td>';}).join("")+'</tr></table>'+
+      '<div class="sec-t">适配说明</div><p>'+esc(c.intro.fit)+'</p>'+
+      '<div class="hint">介绍版本：'+esc(c.introVersion)+' 学期'+(c.introByAdmin?' · 教务代录':'')+'；新学期教师未更新时继续展示上一已发布版本。</div>';
+  }
+  h+='</div>';
+
+  /* 教师 */
+  h+='<div class="dpane '+(state.detailTab==="teacher"?"on":"")+'"><div class="tcard"><div class="ava">'+esc(t.name[0])+'</div><div>'+
+    '<h3 style="margin:2px 0">'+esc(t.name)+' <span style="font-size:12px;color:var(--ink3);font-weight:400">'+esc(t.title)+' · '+esc(t.dept)+'（教务同步信息）</span></h3>'+
+    '<div style="margin:5px 0">'+t.dirs.map(function(d){return '<span class="chip">'+esc(d)+'</span>';}).join("")+'</div>';
+  if(t.style){
+    h+='<p class="kvline" style="margin-top:6px">'+esc(t.edu)+'</p><p style="font-size:13px;color:var(--ink2);margin-top:6px">教学风格自述：'+esc(t.style)+'</p>';
+  }else{
+    h+='<div class="banner warn" style="margin-top:8px">教师暂未填写自述介绍，以上职称、院系信息来自教务同步数据。</div>';
+  }
+  var tc=DATA.courses.filter(function(x){return x.teacherId===t.id;});
+  h+='<p style="font-size:12.5px;color:var(--brand);margin-top:8px">本学期课程：'+tc.map(function(x){return '<span data-act="openDetail" data-id="'+x.id+'" style="cursor:pointer">'+esc(x.name)+'</span>';}).join("、")+'</p>'+
+    '</div></div></div>';
+
+  /* 评价 */
+  h+='<div class="dpane '+(state.detailTab==="review"?"on":"")+'">';
+  if(!list.length){
+    h+='<div class="empty"><div style="font-size:15px;margin-bottom:6px">🌱 '+('暂无学生评价' )+'</div>'+(c.isNew?'该课程为新开课，尚无往期修读学生。课程结束、成绩发布后将邀请修读学生匿名评价。':'本课程评价数量不足，学生评价仅在成绩发布后由真实修读者提交。')+'</div>';
+  }else{
+    if(sc===null){
+      h+='<div class="banner warn">当前仅 '+list.length+' 条已发布评价，不足 '+DATA.cfg.N+' 条，暂不显示数字评分与标签聚合，以下评语可逐条阅读，避免小样本误导。</div>';
+    }else{
+      var dist=wlDist(c),tot=list.length;
+      var distTxt=["适中","较多","很多"].filter(function(k){return dist[k];}).map(function(k){return k+" "+Math.round(dist[k]/tot*100)+"%";}).join(" · ");
+      h+='<div class="rsum"><div style="text-align:center"><div class="scorebig">'+fmt1(sc)+'<small>综合评分 · '+list.length+' 条已发布评价</small></div><div style="margin-top:4px">'+starsHtml(sc)+'</div><div class="hint" style="margin-top:6px">工作量分布：'+esc(distTxt)+'</div></div><div>'+
+        DIMS.map(function(d){var v=dimAvg(list,d.k);return '<div class="dim"><span class="dl">'+d.l+'</span><span class="bar"><i style="width:'+Math.round(v/5*100)+'%"></i></span><span class="dv">'+fmt1(v)+'</span></div>';}).join("")+
+        '<div style="margin-top:8px;font-size:11.5px;color:var(--ink3)">高频标签（点击筛选）：'+tagCount(c).slice(0,8).map(function(x){return '<span class="chip '+(state.reviewFilter.tags[x[0]]?"on":"")+'" data-act="filterTag" data-tag="'+esc(x[0])+'">'+esc(x[0])+' '+x[1]+'</span>';}).join("")+'</div></div></div>';
+    }
+    h+='<div class="filterrow"><span style="color:var(--ink3)">筛选：</span><span class="fchk '+(state.reviewFilter.onlyText?"on":"")+'" data-act="onlyText">只看有评语</span><span style="margin-left:auto;color:var(--ink3)">默认：学期最新优先</span></div>';
+    var shown=list.filter(function(r){
+      var okT=Object.keys(state.reviewFilter.tags).every(function(t){return r.tags.indexOf(t)>-1;});
+      var okC=!state.reviewFilter.onlyText||!!r.text;
+      return okT&&okC;
+    }).sort(function(a,b){return b.semester.localeCompare(a.semester);});
+    if(!shown.length)h+='<div class="empty">当前筛选条件下暂无评价</div>';
+    shown.forEach(function(r){
+      h+='<div class="review"><div class="rh"><span><b>'+esc(r.who)+'</b> · '+esc(r.semester)+' · 工作量：'+esc(r.workload)+'</span>'+starsHtml(reviewAvg(r))+'</div>'+
+        '<div>'+r.tags.filter(function(t){return DATA.tagDisabled.indexOf(t)<0;}).map(function(t){return '<span class="chip gray">'+esc(t)+'</span>';}).join("")+'</div>'+
+        '<div class="rb">'+(r.text?esc(r.text):'<span style="color:var(--ink3)">该学生未填写文字评语。</span>')+'</div>';
+      if(r.reply&&r.reply.status==="published"){
+        h+='<div class="reply"><b>教师回复 · '+esc(t.name)+"：</b>"+esc(r.reply.text)+'</div>';
+      }
+      h+='<div class="rv-actions"><span data-act="report" data-rid="'+r.id+'">⚠ 举报</span></div></div>';
+    });
+  }
+  var canReview=(state.role==="eligible") && c.id==="c1" && !c.reviews.some(function(r){return r.mine&&r.status!=="revise"&&r.status!=="hidden";});
+  if(canReview){
+    if(DATA.cfg.windowOpen)h='<button class="btn ghost" style="margin-bottom:12px" data-act="startReview">✍️ 我修读过这门课 · 去评价（2025 秋）</button>'+h;
+    else h='<div class="banner info">评价窗口已关闭（下一学期选课开始日截止），已发布评价继续公开展示，不可再提交或编辑。</div>'+h;
+  }
+  h+='<p style="margin-top:14px"><button class="btn gray sm" data-act="backList">‹ 返回选课列表</button></p>';
+  return '</div>'+h;
+}
+
+/* ================= 学生：评价表单 ================= */
+function starInputHtml(key,val){
+  var s="";for(var i=1;i<=5;i++)s+=i<=val?"★":"☆";
+  return '<span class="stars-input" data-stars="'+key+'">'+s+'</span>';
+}
+function viewReview(){
+  var targetId=(state.draft&&state.draft.target)||"c1";
+  var c=course(targetId),tt=teacher(c.teacherId);
+  if(!DATA.cfg.windowOpen){
+    return '<div class="card"><h3>评价窗口已关闭</h3><p class="kvline">《'+esc(c.name)+'》的评价通道随下一学期选课开始而关闭，已发布评价仍可在课程详情查看。</p><p style="margin-top:12px"><button class="btn gray" data-go="mine">查看我的评价</button></p></div>';
+  }
+  var d=state.draft||{dims:{content:0,clarity:0,gain:0,assess:0},workload:"适中",tags:[],text:"",anon:true,target:targetId};
+  var h='<div class="card"><h3>评价课程：'+esc(c.name)+' <span class="badge bd-gray">2025 秋 · '+esc(tt.name)+'</span></h3>'+
+    '<div class="hint">你的评价仅在审核通过后公开展示；默认匿名，任何设置下都不会公开姓名与学号。每人每门课仅可评价一次，提交后 14 天内可编辑或撤回。</div>'+
+    '<label class="fld"><span class="req">*</span> 课程评分</label>'+
+    DIMS.map(function(dm){return '<div class="starline"><span class="dl">'+dm.l+'</span>'+starInputHtml(dm.k,d.dims[dm.k])+'</div>';}).join("")+
+    '<label class="fld"><span class="req">*</span> 课外工作量</label><div class="seg" id="wlSeg">'+WORKLOAD.map(function(w){return '<span data-wl="'+w+'" '+(d.workload===w?'class="on"':'')+'>'+w+'</span>';}).join("")+'</div>'+
+    '<label class="fld"><span class="req">*</span> 课程标签（1–5 个）</label><div>'+DATA.tags.map(function(t){var dis=DATA.tagDisabled.indexOf(t)>-1;return '<span class="chip '+(d.tags.indexOf(t)>-1?"on":"")+'" '+(dis?'style="opacity:.4;text-decoration:line-through"':'data-act="pickTag" data-tag="'+esc(t)+'"')+'>'+esc(t)+'</span>';}).join("")+'</div>'+
+    '<label class="fld">文字评语（选填，20–500 字）</label><textarea id="rvText" placeholder="真实、具体的体验对下一届最有帮助：课程节奏、考核方式、课外投入、给选课同学的建议……">'+esc(d.text)+'</textarea>'+
+    '<div class="hint" id="rvCount">'+d.text.length+' / 500</div>'+
+    '<div class="switchline" style="margin-top:14px"><div><div class="sl-t">匿名评价 <span class="badge bd-blue">默认开启</span></div><div class="sl-d">开启后公开展示为「选课学生（匿名）」；关闭后仅可公开年级/专业，不公开姓名学号</div></div><span class="toggle '+(d.anon?"":"off")+'" data-act="toggleAnon"><i></i></span></div>'+
+    '<div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center"><span class="hint">草稿自动保存 · 提交后进入待审核</span><span><button class="btn gray" data-act="saveDraft">存草稿</button> <button class="btn" data-act="submitReview">提交评价</button></span></div></div>';
+  return h;
+}
+
+/* ================= 学生：我的评价 ================= */
+function viewMine(){
+  var mine=myReviews();
+  var h='<div class="page-title">我的评价</div><div class="page-sub">仅你本人可见全部状态；评价窗口（成绩发布后 '+DATA.cfg.windowDays+' 天）内可编辑或撤回已发布评价。</div><div class="card">';
+  if(!mine.length){h+='<div class="empty">你还没有提交过评价。成绩发布后可在课程详情页或消息入口提交。</div>';return h+'</div>';}
+  h+='<table><tr><th>课程</th><th>评分</th><th>状态</th><th>说明</th><th>操作</th></tr>';
+  mine.forEach(function(item){
+    var c=item.c,r=item.r;
+    var ops="";
+    if(r.status==="revise")ops='<button class="btn sm danger" data-act="fixReview" data-rid="'+r.id+'">修改后重新提交</button>';
+    else if(r.status==="published"&&DATA.cfg.windowOpen)ops='<button class="btn sm ghost" data-act="fixReview" data-rid="'+r.id+'">编辑</button> <button class="btn sm gray" data-act="withdraw" data-rid="'+r.id+'">撤回</button>';
+    else if(r.status==="pending")ops='<span class="hint">审核中，可撤回为草稿</span> <button class="btn sm gray" data-act="withdraw" data-rid="'+r.id+'">撤回</button>';
+    else if(r.status==="hidden")ops='<span class="hint">如有异议可联系教务（申诉入口 P1）</span>';
+    var note="";
+    if(r.status==="revise")note='未通过：'+r.rejectReasons.join("、");
+    if(r.status==="hidden")note="评价已隐藏："+(r.hideReason||"违规判定");
+    if(r.status==="published")note="公开展示于课程详情页";
+    if(r.status==="pending")note="通常在 1 个学习日内完成审核 [SLA TBD]";
+    h+='<tr><td><b>'+esc(c.name)+'</b><div class="hint">'+esc(r.semester)+'</div></td><td style="color:#fa8c16;font-weight:700">'+fmt1(reviewAvg(r))+'</td><td>'+statusBadge(r.status)+'</td><td style="font-size:12px;color:var(--ink2)">'+esc(note)+'</td><td>'+ops+'</td></tr>';
+  });
+  return h+'</table></div>';
+}
+
+/* ================= 教师端 ================= */
+function viewTCourses(){
+  var t=teacher("t1");
+  var mine=DATA.courses.filter(function(c){return c.teacherId==="t1";});
+  var h='<div class="page-title">我的课程 · '+esc(t.name)+'</div><div class="page-sub">每学期开课前维护课程介绍；提交后经教务审核发布，驳回时附原因，可修改重提。</div>';
+  mine.forEach(function(c){
+    var stMap={published:['bd-green','已发布 · '+c.introVersion+' 版本'],pending:['bd-amber','新版本待审核'],rejected:['bd-red','被驳回，请修改'],missing:['bd-gray','未维护']}[c.introStatus];
+    var warn=(c.introStatus==="published"&&c.introVersion!==c.semester)?'<div class="hint" style="color:var(--amber)">新学期尚未更新，学生当前看到的是上一学期版本</div>':"";
+    var rejectNote=c.introRejectReason?'<div class="hint" style="color:var(--red)">驳回原因：'+esc(c.introRejectReason)+'</div>':"";
+    h+='<div class="card"><h3>'+esc(c.name)+' <span class="badge '+stMap[0]+'">'+stMap[1]+'</span> <span class="badge bd-gray">'+esc(c.semester)+'</span></h3>'+
+      '<div class="kvline">上课时间：<b>'+esc(c.time)+'</b> · 容量：'+c.total+' 人 · 已发布评价：<b>'+publishedReviews(c).length+'</b> 条</div>'+warn+rejectNote+
+      '<div style="margin-top:11px"><button class="btn sm" data-act="editIntro" data-id="'+c.id+'">'+(c.intro?"更新课程介绍":"维护课程介绍")+'</button> <button class="btn sm gray" data-act="openDetailT" data-id="'+c.id+'">预览学生所见</button></div></div>';
+  });
+  return h;
+}
+function viewEditIntro(){
+  var c=course(state.draftCourseId||"c4");
+  var i=c.introDraft||c.intro||{summary:"",objectives:["",""],weeks:[["W1",""]],assessment:[["平时",0],["期末",0]],fit:""};
+  var h='<div class="card"><h3>维护课程介绍：'+esc(c.name)+' <span class="badge bd-gray">'+esc(c.semester)+'</span></h3>'+
+    '<div class="hint">审核期间学生继续看到上一已发布版本；首次发布前看到空状态提示。</div>'+
+    '<label class="fld"><span class="req">*</span> 内容简介（300 字以内）</label><textarea id="iSummary" style="min-height:90px">'+esc(i.summary)+'</textarea>'+
+    '<label class="fld">教学目标（每行一条）</label><textarea id="iObj">'+esc(i.objectives.join("\n"))+'</textarea>'+
+    '<label class="fld">课程安排（每行格式：周次|主题，如 W7|社会分层）</label><textarea id="iWeeks">'+esc(i.weeks.map(function(w){return w[0]+"|"+w[1];}).join("\n"))+'</textarea>'+
+    '<label class="fld"><span class="req">*</span> 考核方式与占比（合计必须等于 100%）</label><div id="assWrap">'+
+    i.assessment.map(function(a,idx){return '<div class="assrow"><input type="text" class="an" value="'+esc(a[0])+'"><input type="text" class="ap" inputmode="numeric" value="'+a[1]+'"><button class="btn sm gray" data-act="delAss" data-i="'+idx+'">删除</button></div>';}).join("")+'</div>'+
+    '<button class="btn sm gray" data-act="addAss">+ 增加考核项</button><div class="kvline" style="margin-top:8px">当前合计：<b id="assSum" style="font-size:15px">'+i.assessment.reduce(function(a,x){return a+x[1];},0)+'%</b> <span id="assTip"></span></div>'+
+    '<label class="fld">适配说明（先修要求、适合对象、课外投入）</label><textarea id="iFit">'+esc(i.fit)+'</textarea>'+
+    '<div style="margin-top:16px"><button class="btn gray" data-act="cancelIntro">取消</button> <button class="btn" data-act="submitIntro" data-id="'+c.id+'" style="margin-left:8px">'+(state.page==="adminEdit"?"代录并发布":"提交审核")+'</button></div></div>';
+  return h;
+}
+function viewTProfile(){
+  var t=teacher("t1");
+  var stMap={published:['bd-green','已发布'],pending:['bd-amber','待审核'],missing:['bd-gray','未维护'],rejected:['bd-red','被驳回']}[t.profileStatus];
+  return '<div class="page-title">教师介绍</div><div class="page-sub">职称、院系为教务同步只读字段；自填内容先审后发。</div>'+
+    '<div class="card"><h3>'+esc(t.name)+' <span class="badge '+stMap[0]+'">'+stMap[1]+'</span></h3>'+
+    (t.profileRejectReason?'<div class="banner warn">驳回原因：'+esc(t.profileRejectReason)+'，修改后重新提交即可。</div>':'')+
+    '<div class="kvline">职称 / 院系：<b>'+esc(t.title)+' · '+esc(t.dept)+'</b>（信息有误请联系教务更正）</div>'+
+    '<label class="fld">研究方向（逗号分隔）</label><input type="text" id="pDirs" value="'+esc(t.dirs.join("，"))+'">'+
+    '<label class="fld">教育背景</label><input type="text" id="pEdu" value="'+esc(t.edu)+'">'+
+    '<label class="fld">教学风格自述 / 对选课学生的期待</label><textarea id="pStyle">'+esc(t.style)+'</textarea>'+
+    '<div style="margin-top:14px"><button class="btn" data-act="submitProfile">提交审核</button></div></div>';
+}
+function viewTReviews(){
+  var mine=DATA.courses.filter(function(c){return c.teacherId==="t1";});
+  var h='<div class="page-title">评价与回复</div><div class="page-sub">你无法查看评价人身份、不能删除或折叠评价；每条已发布评价可回复 1 次，回复以真实姓名公开发布并经审核。新评价以每周摘要推送。</div>';
+  var any=false;
+  mine.forEach(function(c){
+    c.reviews.filter(function(r){return r.status==="published"||(r.reply&&(r.reply.status==="pending"||r.reply.status==="rejected"));}).forEach(function(r){
+      any=true;
+      h+='<div class="card"><h3 style="font-size:14px">'+esc(c.name)+' · '+esc(r.semester)+' '+starsHtml(reviewAvg(r))+'</h3>'+
+        '<div class="kvline">'+esc(r.who)+' · 工作量：'+esc(r.workload)+' · '+r.tags.map(function(t){return '<span class="chip gray">'+esc(t)+'</span>';}).join("")+'</div>'+
+        '<p style="font-size:13px;margin:6px 0">'+(r.text?esc(r.text):'<span style="color:var(--ink3)">该学生未填写文字评语。</span>')+'</p>';
+      if(!r.reply){
+        h+='<button class="btn sm ghost" data-act="openReply" data-rid="'+r.id+'" data-cid="'+c.id+'">回复这条评价</button>';
+      }else if(r.reply.status==="rejected"){
+        h+='<div class="banner warn" style="margin:6px 0">你的回复未通过审核：'+esc(r.reply.reason||"内容规范问题")+'，可修改后重新提交（仍限 1 条）。</div>';
+        h+='<button class="btn sm ghost" data-act="openReply" data-rid="'+r.id+'" data-cid="'+c.id+'">修改回复</button>';
+      }else{
+        h+='<div class="reply '+(r.reply.status==="pending"?"pending":"")+'"><b>'+(r.reply.status==="pending"?"你的回复（待审核）":"你的回复（已发布）")+"：</b>"+esc(r.reply.text)+'</div>';
+        h+='<div style="margin-top:8px"><button class="btn sm gray" data-act="openReply" data-rid="'+r.id+'" data-cid="'+c.id+'">编辑（30 天内限 1 次，重新审核）</button> <button class="btn sm gray" data-act="delReply" data-rid="'+r.id+'">删除回复</button></div>';
+      }
+      h+='</div>';
+    });
+  });
+  if(!any)h+='<div class="card"><div class="empty">暂无已发布评价</div></div>';
+  return h;
+}
+
+/* ================= 教务端 ================= */
+function queues(){
+  var reviewQ=[],introQ=[],reportQ=[],missingQ=[],profileQ=[];
+  DATA.courses.forEach(function(c){
+    if(c.introStatus==="pending")introQ.push(c);
+    if(c.introStatus==="missing")missingQ.push(c);
+    c.reviews.forEach(function(r){
+      if(r.status==="pending")reviewQ.push({c:c,r:r});
+      if(r.reply&&r.reply.status==="pending")reviewQ.push({c:c,r:r,isReply:true});
+      if(r.reports>0)reportQ.push({c:c,r:r});
+    });
+  });
+  Object.keys(DATA.teachers).forEach(function(k){if(DATA.teachers[k].profileStatus==="pending")profileQ.push(DATA.teachers[k]);});
+  return {reviewQ:reviewQ,introQ:introQ,reportQ:reportQ,missingQ:missingQ,profileQ:profileQ};
+}
+function viewAudit(){
+  var q=queues();
+  var tabs=[["review","评价/回复人工审核",q.reviewQ.length],["intro","介绍审核（课程/教师）",q.introQ.length+q.profileQ.length],["report","举报处理",q.reportQ.length],["missing","信息不完整 · 代录",q.missingQ.length]];
+  var h='<div class="page-title">审核工作台</div><div class="statgrid">'+
+    '<div class="stat warn"><div class="n">'+q.reviewQ.length+'</div><div class="l">待审评价/回复</div></div>'+
+    '<div class="stat"><div class="n">'+(q.introQ.length+q.profileQ.length)+'</div><div class="l">待审课程/教师介绍</div></div>'+
+    '<div class="stat red"><div class="n">'+q.reportQ.length+'</div><div class="l">被举报评价</div></div>'+
+    '<div class="stat green"><div class="n">'+q.missingQ.length+'</div><div class="l">介绍缺失待补录</div></div></div>'+
+    '<div class="subtabs">'+tabs.map(function(t){return '<button class="subtab '+(state.auditTab===t[0]?"on":"")+'" data-act="auditTab" data-tab="'+t[0]+'">'+t[1]+'<span class="cnt">'+t[2]+'</span></button>';}).join("")+'</div><div class="card">';
+  if(state.auditTab==="review"){
+    if(!q.reviewQ.length)h+='<div class="empty">人工审核队列为空（明确违规内容已由规则引擎直接处理）</div>';
+    q.reviewQ.forEach(function(it){
+      var r=it.r;
+      h+='<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:11px">'+
+        '<div class="kvline"><b>'+(it.isReply?"教师回复":"学生评价")+'</b> · '+esc(it.c.name)+' · '+esc(r.semester)+' '+(it.isReply?"":starsHtml(reviewAvg(r)))+' <span class="badge bd-amber">待人工判定（疑似但不确定）</span></div>'+
+        '<p style="font-size:13px;margin:6px 0">'+esc(it.isReply?r.reply.text:(r.text||"（仅评分与标签，无文字评语）"))+'</p>'+
+        '<div style="display:flex;gap:8px"><button class="btn sm" data-act="approve" data-cid="'+it.c.id+'" data-rid="'+r.id+'" data-reply="'+(it.isReply?1:0)+'">通过并发布</button>'+
+        '<button class="btn sm danger" data-act="reject" data-cid="'+it.c.id+'" data-rid="'+r.id+'" data-reply="'+(it.isReply?1:0)+'">驳回（要求修改）</button>'+
+        '<button class="btn sm gray" data-act="hide" data-cid="'+it.c.id+'" data-rid="'+r.id+'">直接隐藏</button></div></div>';
+    });
+  }
+  if(state.auditTab==="intro"){
+    q.profileQ.forEach(function(t){
+      h+='<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:11px"><div class="kvline"><b>教师介绍</b> · '+esc(t.name)+' · '+esc(t.title)+' · '+esc(t.dept)+'</div>'+
+        '<p style="font-size:13px;margin:6px 0">研究方向：'+esc(t.dirs.join("、"))+'<br>教学风格：'+esc(t.style||"（未填写）")+'</p>'+
+        '<div style="display:flex;gap:8px"><button class="btn sm" data-act="approveProfile" data-id="'+t.id+'">通过并发布</button>'+
+        '<button class="btn sm danger" data-act="rejectProfile" data-id="'+t.id+'">驳回</button></div></div>';
+    });
+    if(!q.introQ.length&&!q.profileQ.length)h+='<div class="empty">暂无待审课程介绍</div>';
+    q.introQ.forEach(function(c){
+      var d=c.introDraft||c.intro;
+      h+='<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:11px"><div class="kvline"><b>'+esc(c.name)+'</b> · '+esc(c.semester)+' · '+esc(teacher(c.teacherId).name)+' 提交</div>'+
+        '<p style="font-size:13px;margin:6px 0">'+esc(d.summary)+'</p>'+
+        '<div class="hint">考核占比合计 '+d.assessment.reduce(function(a,x){return a+x[1];},0)+'%</div>'+
+        '<div style="margin-top:9px;display:flex;gap:8px"><button class="btn sm" data-act="approveIntro" data-id="'+c.id+'">通过并发布</button><button class="btn sm danger" data-act="rejectIntro" data-id="'+c.id+'">驳回</button></div></div>';
+    });
+  }
+  if(state.auditTab==="report"){
+    if(!q.reportQ.length)h+='<div class="empty">暂无被举报评价</div>';
+    q.reportQ.forEach(function(it){
+      var r=it.r;
+      var auto=r.reports>=DATA.cfg.reportThreshold;
+      h+='<div style="border:1px solid '+(auto?'#e8b4b4':'var(--line)')+';border-radius:10px;padding:13px 15px;margin-bottom:11px'+(auto?';background:#fff8f8':'')+'">'+
+        '<div class="kvline"><b>'+esc(it.c.name)+'</b> · '+esc(r.semester)+' · 举报人数：<b style="color:'+(auto?'var(--red)':'inherit')+'">'+r.reports+'/'+DATA.cfg.reportThreshold+'</b> '+(auto?'<span class="badge bd-red">已达阈值，系统自动临时隐藏，待复核</span>':'')+'</div>'+
+        '<p style="font-size:13px;margin:6px 0">'+esc(r.text||"（无文字评语）")+'</p><div class="hint">举报理由：'+esc(r.reportReasons.join("、"))+'</div>'+
+        '<div style="margin-top:9px;display:flex;gap:8px"><button class="btn sm" data-act="hide" data-cid="'+it.c.id+'" data-rid="'+r.id+'">举报成立 · 维持隐藏</button>'+
+        '<button class="btn sm ghost" data-act="restore" data-cid="'+it.c.id+'" data-rid="'+r.id+'">举报不成立 · 恢复展示</button>'+
+        '<button class="btn sm gray" data-act="simReport" data-cid="'+it.c.id+'" data-rid="'+r.id+'">（原型）模拟再被 1 人举报</button></div></div>';
+    });
+  }
+  if(state.auditTab==="missing"){
+    h+='<div class="hint" style="margin-bottom:10px">教师距选课开放仍未维护时，教务可代录；代录内容标记「教务代录」并通知教师。</div>';
+    if(!q.missingQ.length)h+='<div class="empty">全部开课信息完整 🎉</div>';
+    q.missingQ.forEach(function(c){
+      h+='<div class="kvline" style="padding:10px 0;border-bottom:1px dashed var(--line2)"><b>'+esc(c.name)+'</b> · '+esc(teacher(c.teacherId).name)+' · '+(c.isNew?"新开课":"老课无介绍")+' <button class="btn sm" style="margin-left:10px" data-act="adminEdit" data-id="'+c.id+'">教务代录</button></div>';
+    });
+  }
+  return h+'</div>';
+}
+function viewTags(){
+  var h='<div class="page-title">标签库管理</div><div class="page-sub">停用后历史评价上不再聚合显示该标签，原始数据保留。学生评价表单最多选择 5 个。</div><div class="card"><h3>评价标签（'+DATA.tags.length+'）</h3><div style="margin-bottom:12px"><input type="text" id="newTag" placeholder="新增标签名称" style="width:220px;display:inline-block"> <button class="btn sm" data-act="addTag">新增</button></div>';
+  DATA.tags.forEach(function(t){
+    var dis=DATA.tagDisabled.indexOf(t)>-1;
+    h+='<span class="chip '+(dis?"danger":"on")+'" data-act="toggleTag" data-tag="'+esc(t)+'" style="margin-bottom:8px;font-size:12.5px;padding:4px 13px">'+(dis?"已停用 · ":"启用中 · ")+esc(t)+'</span>';
+  });
+  return h+'</div><div class="card"><h3>敏感词与处置规则</h3><div class="hint">明确违规（违法、广告引流）直接隐藏；可修正类（攻击表述、疑似联系方式）驳回要求修改；疑似不确定进入人工队列。</div>'+
+    '<div style="margin:10px 0">'+DATA.cfg.words.map(function(w){return '<span class="chip danger" data-act="delWord" data-w="'+esc(w)+'">'+esc(w)+' ×</span>';}).join("")+'</div>'+
+    '<input type="text" id="newWord" placeholder="新增敏感词" style="width:220px;display:inline-block"> <button class="btn sm" data-act="addWord">添加</button></div>';
+}
+function viewConfig(){
+  var c=DATA.cfg;
+  function row(title,desc,inner){return '<div class="switchline"><div><div class="sl-t">'+title+'</div><div class="sl-d">'+desc+'</div></div><div>'+inner+'</div></div>';}
+  return '<div class="page-title">规则与窗口期配置</div><div class="card"><h3>展示与聚合</h3>'+
+    row("评分展示门槛 N","已发布评价不足 N 条时不显示数字评分",'<input type="text" value="'+c.N+'" style="width:70px" data-cfg="N">')+
+    row("评价标签可选上限","学生单次评价最多选择标签数",'<input type="text" value="5" disabled style="width:70px" class="">')+
+    row("举报自动临时隐藏阈值","被 N 名不同学生举报后自动隐藏并进入复核",'<input type="text" value="'+c.reportThreshold+'" style="width:70px" data-cfg="reportThreshold">')+'</div>'+
+    '<div class="card"><h3>评价窗口期</h3>'+
+    row("窗口时长","成绩发布后开放提交/编辑/撤回的天数",c.windowDays+' 天 [TBD 评审确认]')+
+    row("评价窗口当前状态",c.windowOpen?"开放中：修读学生可提交、编辑、撤回":"已关闭：评价只读，不可提交",'<span class="toggle '+(c.windowOpen?"":"off")+'" data-act="toggleWindow"><i></i></span>')+
+    '<div class="hint" style="margin-top:10px">关闭后切换到「修读学生」视角，可观察提交入口变为只读提示；教师回复编辑期（30 天）规则相同。</div></div>'+
+    '<div class="card"><h3>审核时效</h3><p class="kvline">人工审核 SLA：<b>[TBD]</b>，超期队列在工作台高亮；系统不默认自动发布。</p></div>';
+}
+function viewLog(){
+  return '<div class="page-title">操作日志</div><div class="page-sub">审核、隐藏、恢复、代录、查看实名关联等动作全部留痕（操作人 / 时间 / 对象 / 原因），可供审计导出。</div><div class="card">'+
+    DATA.logs.map(function(l){return '<div class="logline"><span class="t">'+esc(l.t)+'</span>'+l.text+'</div>';}).join("")+'</div>';
+}
+
+/* ================= 渲染分发 ================= */
+function render(){
+  var map={list:viewList,detail:viewDetail,mine:viewMine,review:viewReview,
+    tcourses:viewTCourses,editIntro:viewEditIntro,tprofile:viewTProfile,treviews:viewTReviews,
+    audit:viewAudit,tags:viewTags,config:viewConfig,log:viewLog,adminEdit:viewAdminEdit};
+  $("#app").innerHTML=map[state.page]?map[state.page]():"";
+  renderNav();renderBell(false);bindPage();
+}
+function viewAdminEdit(){state.draftCourseId=state.adminEditId||state.draftCourseId;return viewEditIntro();}
+
+/* 页面内事件绑定（在 render 后执行） */
+function bindPage(){
+  var sq=$("#listSearch");
+  if(sq){sq.addEventListener("input",function(){listFilter.q=sq.value.trim();$("#app").innerHTML=viewList();bindPage();sq.focus();sq.setSelectionRange(sq.value.length,sq.value.length);});}
+  $all("[data-stars]").forEach(function(el){
+    el.addEventListener("click",function(e){
+      ensureDraft();
+      var k=el.dataset.stars,rect=el.getBoundingClientRect();
+      var v=Math.max(1,Math.min(5,Math.ceil((e.clientX-rect.left)/(rect.width/5))));
+      state.draft.dims[k]=v;redrawFormStars();
+    });
+  });
+  $all("#wlSeg span").forEach(function(el){
+    el.addEventListener("click",function(){ensureDraft();state.draft.workload=el.dataset.wl;$all("#wlSeg span").forEach(function(x){x.classList.toggle("on",x===el);});});
+  });
+  var rt=$("#rvText");
+  if(rt){rt.addEventListener("input",function(){ensureDraft();state.draft.text=rt.value.slice(0,500);$("#rvCount").textContent=state.draft.text.length+" / 500";});}
+  $all(".ap").forEach(function(el){el.addEventListener("input",refreshAssSum);});
+  var cfgInputs=$all("[data-cfg]");
+  cfgInputs.forEach(function(el){el.addEventListener("change",function(){var v=parseInt(el.value,10);if(!isNaN(v)&&v>0){DATA.cfg[el.dataset.cfg]=v;toast("配置已更新（原型内存生效）");render();}});});
+}
+function ensureDraft(){if(!state.draft)state.draft={dims:{content:0,clarity:0,gain:0,assess:0},workload:"适中",tags:[],text:"",anon:true,target:"c1"};}
+function draftTargetCourse(){return course((state.draft&&state.draft.target)||"c1");}
+function redrawFormStars(){
+  $all("[data-stars]").forEach(function(el){var v=state.draft.dims[el.dataset.stars];var s="";for(var i=1;i<=5;i++)s+=i<=v?"★":"☆";el.textContent=s;});
+}
+function refreshAssSum(){
+  var sum=0;
+  $all("#assWrap .assrow").forEach(function(row){var v=parseInt($(".ap",row).value,10);if(!isNaN(v))sum+=v;});
+  $("#assSum").textContent=sum+"%";
+  $("#assSum").style.color=sum===100?"var(--green)":"var(--red)";
+  var tip=$("#assTip");if(tip)tip.innerHTML=sum===100?'<span style="color:var(--green)">✓ 合计正确</span>':'<span style="color:var(--red)">需调整为 100% 才能提交</span>';
+}
+function collectAssessment(){
+  return $all("#assWrap .assrow").map(function(row){return [$(".an",row).value.trim(),parseInt($(".ap",row).value,10)||0];}).filter(function(a){return a[0];});
+}
+
+/* ================= 动作处理 ================= */
+function handleAction(el,e){
+  var act=el.dataset.act,p=el.dataset;
+  if(act==="closeModal"){closeModal();return;}
+  if(act==="openDetail"){go("detail",{detailId:p.id,detailTab:"intro",reviewFilter:{tags:{},onlyText:false}});}
+  if(act==="openDetailT"){state.role="teacher";state.page="detail";state.detailId=p.id;render();}
+  if(act==="dtab"){state.detailTab=p.tab;render();}
+  if(act==="backList"){go(state.role==="teacher"?"tcourses":(state.role==="admin"?"audit":"list"));}
+  if(act==="enroll"){toast("选课操作由现有选课系统完成（容量/抽签/退改选不在本原型范围）");}
+  if(act==="filterCat"){listFilter.cat=p.cat;render();}
+  if(act==="filterTag"){var tg=p.tag;if(state.reviewFilter.tags[tg])delete state.reviewFilter.tags[tg];else state.reviewFilter.tags[tg]=1;render();}
+  if(act==="onlyText"){state.reviewFilter.onlyText=!state.reviewFilter.onlyText;render();}
+  if(act==="startReview"){state.draft=null;go("review");}
+  if(act==="pickTag"){
+    ensureDraft();var t=p.tag,arr=state.draft.tags,i=arr.indexOf(t);
+    if(i>-1)arr.splice(i,1);else if(arr.length<5)arr.push(t);else toast("最多选择 5 个标签");
+    render();
+  }
+  if(act==="toggleAnon"){ensureDraft();state.draft.anon=!state.draft.anon;render();}
+  if(act==="saveDraft"){ensureDraft();var tx=$("#rvText");if(tx)state.draft.text=tx.value;toast("草稿已保存");}
+  if(act==="submitReview"){
+    ensureDraft();var tx2=$("#rvText");if(tx2)state.draft.text=tx2.value.trim();
+    var incomplete=DIMS.some(function(dm){return !state.draft.dims[dm.k];});
+    if(incomplete){toast("请完成四个维度的评分");return;}
+    if(!state.draft.tags.length){toast("请至少选择 1 个标签");return;}
+    if(state.draft.text && (state.draft.text.length<20||state.draft.text.length>500)){toast("文字评语需 20–500 字，或留空只提交评分");return;}
+    /* 自动审核：命中明确违规词直接隐藏；命中攻击/联系方式 → 需修改；否则 → 待审核（模拟疑似进入人工） */
+    var hitHard=DATA.cfg.words.some(function(w){return state.draft.text.indexOf(w)>-1;});
+    var c1=draftTargetCourse();
+    var newId="r"+Date.now();
+    var rev=rv(newId,"2025秋",state.draft.anon?"选课学生（匿名）":"社会学系 · 大三（自愿公开年级专业）",state.draft.workload,Object.assign({},state.draft.dims),state.draft.tags.slice(),state.draft.text,{mine:true});
+    if(hitHard){rev.status="hidden";rev.hideReason="命中明确违规词（系统自动隐藏）";c1.reviews.push(rev);addLog("系统自动隐藏一条评价（命中违规词），待人工复核");state.draft=null;render();modalAlert("提交结果",'<div style="color:var(--red)">评价命中明确违规规则，已被系统自动隐藏。</div><div class="hint">如认为判定有误可联系教务（申诉入口 P1）。</div>');return;}
+    rev.status="pending";
+    /* 原型演示：含微信/联系方式或攻击字样 → 需修改 */
+    if(/微信|wx_|加我|qq/i.test(state.draft.text)){
+      rev.status="revise";rev.rejectReasons=["含联系方式/引流信息"];
+      c1.reviews.push(rev);addLog("系统驳回一条评价（疑似联系方式），要求学生修改");state.draft=null;render();
+      modalAlert("需要修改","<div>评价命中<b>可修正类规则</b>，已退回给你，其他内容已保留：</div><div style='margin:8px 0'><span class='chip danger'>含联系方式/引流信息</span></div><div class='hint'>删除联系方式后可在「我的评价」修改重提，无需重填。</div>");return;
+    }
+    c1.reviews.push(rev);
+    addLog("学生提交评价 "+newId+"，进入人工审核队列");
+    state.draft=null;render();
+    modalAlert("提交成功","评价已进入<b>待审核</b>。通过后将公开展示于课程详情；你可在 14 天窗口期内编辑或撤回。<br><br>👉 切换到右上角「教务管理 → 审核工作台」可体验审核通过后即时发布的完整闭环。");
+  }
+  if(act==="fixReview"){
+    var found=findReview(p.rid);
+    var r=found.r,c=found.c;
+    state.draft={dims:Object.assign({},r.dims),workload:r.workload,tags:r.tags.slice(),text:r.text,anon:r.who.indexOf("匿名")>-1,target:c.id,editId:r.id};
+    state.editingReviewId=r.id;
+    go("review");
+    /* 编辑后提交在 submitReview 中处理 editId */
+  }
+  if(act==="withdraw"){
+    var fd=findReview(p.rid);
+    modalConfirm("撤回评价","撤回后评价从课程详情移除并变为你的草稿，窗口期内可重新提交。确认撤回？",function(){
+      var idx=fd.c.reviews.indexOf(fd.r);
+      if(fd.r.status==="published")fd.c.reviews.splice(idx,1);
+      else{fd.c.reviews.splice(idx,1);}
+      addLog("学生撤回评价 "+p.rid);
+      toast("已撤回");render();
+    });
+  }
+  if(act==="report"){openReport(p.rid);}
+  if(act==="simReport"){simReport(p.cid,p.rid);}
+  /* 教师端 */
+  if(act==="editIntro"){state.draftCourseId=p.id;go("editIntro");setTimeout(refreshAssSum,30);}
+  if(act==="cancelIntro"){go(state.page==="adminEdit"?"audit":"tcourses");}
+  if(act==="addAss"){$("#assWrap").insertAdjacentHTML("beforeend",'<div class="assrow"><input type="text" class="an" placeholder="考核项名称"><input type="text" class="ap" inputmode="numeric" placeholder="%" value="0"><button class="btn sm gray" data-act="delAss">删除</button></div>');refreshAssSum();}
+  if(act==="delAss"){el.closest(".assrow").remove();refreshAssSum();}
+  if(act==="submitIntro"){
+    var c=course(p.id);
+    var summary=$("#iSummary").value.trim(),obj=$("#iObj").value.trim(),weeksRaw=$("#iWeeks").value.trim(),fit=$("#iFit").value.trim();
+    var ass=collectAssessment(),sum=ass.reduce(function(a,x){return a+x[1];},0);
+    if(!summary){toast("请填写内容简介");return;}
+    if(sum!==100){toast("考核占比合计必须为 100%，当前 "+sum+"%");return;}
+    var weeks=weeksRaw.split("\n").map(function(l){var parts=l.split("|");return [parts[0]||"",parts[1]||""];}).filter(function(w){return w[1];});
+    var built={summary:summary,objectives:obj?obj.split("\n").filter(Boolean):[],weeks:weeks,assessment:ass,fit:fit};
+    delete c.introRejectReason;
+    if(state.page==="adminEdit"){
+      /* 教务代录：直接发布并标记来源，通知教师 */
+      c.intro=built;delete c.introDraft;
+      c.introStatus="published";c.introVersion=c.semester;c.introByAdmin=true;
+      addLog("教务代录《"+c.name+"》课程介绍并直接发布，已通知教师");
+      pushMsg("teacher","课程介绍已由教务代录","《"+c.name+"》课程介绍由教务代为补录并发布，你可在开课前自行更新后提交审核。");
+      toast("代录内容已发布");go("audit");
+    }else{
+      c.introDraft=built;
+      c.introStatus="pending";c.introByAdmin=false;
+      addLog("教师 "+teacher(c.teacherId).name+" 提交《"+c.name+"》课程介绍，待审核");
+      pushMsg("admin","课程介绍待审核",teacher(c.teacherId).name+" 提交了《"+c.name+"》介绍。");
+      toast("已提交，等待教务审核");go("tcourses");
+    }
+  }
+  if(act==="submitProfile"){
+    var t=teacher("t1");
+    t.dirs=$("#pDirs").value.split(/[,，]/).map(function(s){return s.trim();}).filter(Boolean);
+    t.edu=$("#pEdu").value.trim();t.style=$("#pStyle").value.trim();
+    t.profileStatus="pending";addLog("教师王雪梅提交个人介绍，待审核");
+    pushMsg("admin","教师介绍待审核","王雪梅提交了个人介绍更新。");
+    toast("已提交审核");render();
+  }
+  if(act==="openReply"){state.replyCtx={cid:p.cid,rid:p.rid};openReplyModal();}
+  if(act==="delReply"){
+    modalConfirm("删除回复","删除后该评价下不再展示你的回复，操作会留痕。确认删除？",function(){
+      var f=findReview(p.rid);f.r.reply=null;addLog("教师删除对评价 "+p.rid+" 的回复");toast("回复已删除");render();
+    });
+  }
+  /* 教务 */
+  if(act==="auditTab"){state.auditTab=p.tab;render();}
+  if(act==="approve"){
+    var f2=findReview(p.rid);
+    if(p.reply==="1"){f2.r.reply.status="published";addLog("教务通过教师回复（评价 "+p.rid+"）");toast("回复已发布");pushMsg("teacher","你的回复已发布","《"+f2.c.name+"》下的回复已通过审核并公开展示。");}
+    else{f2.r.status="published";addLog("教务通过评价 "+p.rid);toast("评价已发布");pushMsg("eligible","评价审核通过","你对《"+f2.c.name+"》的评价已公开发布。");}
+    render();
+  }
+  if(act==="reject"){openRejectModal(p);}
+  if(act==="hide"){
+    var f3=findReview(p.rid);
+    modalConfirm("隐藏评价","隐藏后从聚合与列表即时移除，学生本人可见「已隐藏及原因」。确认？",function(){
+      f3.r.status="hidden";f3.r.hideReason=f3.r.reports?"举报成立":"人工判定违规";f3.r.reports=0;f3.r.reportReasons=[];
+      addLog("教务隐藏评价 "+p.rid+"（"+f3.r.hideReason+"）");
+      pushMsg("eligible","评价已隐藏","你对《"+f3.c.name+"》的一条评价因「"+f3.r.hideReason+"」被隐藏。");
+      toast("已隐藏");render();
+    });
+  }
+  if(act==="restore"){
+    var f4=findReview(p.rid);
+    f4.r.reports=0;f4.r.reportReasons=[];
+    if(f4.r.status==="hidden")f4.r.status="published";
+    addLog("教务复核恢复评价 "+p.rid+"（举报不成立）");
+    pushMsg("eligible","举报处理结果","你举报的评价经复核恢复展示（举报不成立）。");
+    toast("已恢复展示");render();
+  }
+  if(act==="approveIntro"){
+    var ic=course(p.id);ic.intro=ic.introDraft;delete ic.introDraft;ic.introStatus="published";ic.introVersion=ic.semester;ic.introByAdmin=false;
+    addLog("教务通过《"+ic.name+"》"+ic.semester+" 课程介绍");
+    pushMsg("teacher","课程介绍已发布","《"+ic.name+"》介绍已通过审核，对学生公开展示。");
+    toast("已发布");render();
+  }
+  if(act==="approveProfile"){
+    var tp=DATA.teachers[p.id];tp.profileStatus="published";delete tp.profileRejectReason;
+    addLog("教务通过教师介绍："+tp.name);
+    pushMsg("teacher","教师介绍已发布","你的个人介绍已通过审核并公开展示。");
+    toast("已发布");render();
+  }
+  if(act==="rejectProfile"){
+    modalPrompt("驳回教师介绍","请填写驳回原因（教师可见）：","表述不符合规范",function(v){
+      var tp2=DATA.teachers[p.id];tp2.profileStatus="rejected";tp2.profileRejectReason=v;
+      addLog("教务驳回教师介绍："+tp2.name+"，原因："+v);
+      pushMsg("teacher","教师介绍被驳回","个人介绍需修改："+v);
+      toast("已驳回");render();
+    });
+  }
+  if(act==="rejectIntro"){
+    modalPrompt("驳回课程介绍","请填写驳回原因（学生/教师可见）：","内容不完整",function(v){
+      var ic2=course(p.id);ic2.introStatus="rejected";ic2.introRejectReason=v;
+      addLog("教务驳回《"+ic2.name+"》课程介绍："+v);
+      pushMsg("teacher","课程介绍被驳回","《"+ic2.name+"》介绍需修改："+v);
+      toast("已驳回");render();
+    });
+  }
+  if(act==="adminEdit"){state.adminEditId=p.id;state.draftCourseId=p.id;go("adminEdit");setTimeout(refreshAssSum,30);}
+  if(act==="toggleTag"){
+    var tag=p.tag,i2=DATA.tagDisabled.indexOf(tag);
+    if(i2>-1)DATA.tagDisabled.splice(i2,1);else DATA.tagDisabled.push(tag);
+    addLog("教务"+(i2>-1?"启用":"停用")+"标签「"+tag+"」");render();
+  }
+  if(act==="addTag"){
+    var v=$("#newTag").value.trim();if(!v)return;
+    if(DATA.tags.indexOf(v)<0){DATA.tags.push(v);addLog("教务新增标签「"+v+"」");}render();
+  }
+  if(act==="addWord"){
+    var w=$("#newWord").value.trim();if(!w)return;
+    if(DATA.cfg.words.indexOf(w)<0)DATA.cfg.words.push(w);render();
+  }
+  if(act==="delWord"){DATA.cfg.words=DATA.cfg.words.filter(function(x){return x!==p.w;});render();}
+  if(act==="toggleWindow"){
+    DATA.cfg.windowOpen=!DATA.cfg.windowOpen;
+    addLog("教务"+(DATA.cfg.windowOpen?"开放":"关闭")+"评价窗口");
+    toast(DATA.cfg.windowOpen?"评价窗口已开放":"评价窗口已关闭，可切换修读学生视角观察只读态");
+    render();
+  }
+  if(act==="readAll"){state.msgs[state.role]=[];renderBell(true);}
+}
+
+/* 按评价 ID 定位所属课程 */
+function findReview(rid){
+  for(var i=0;i<DATA.courses.length;i++){var c=DATA.courses[i];
+    for(var j=0;j<c.reviews.length;j++){if(c.reviews[j].id===rid)return {c:c,r:c.reviews[j]};}
+  }
+  return null;
+}
+
+/* ================= 模态框 ================= */
+function closeModal(){$("#modalRoot").innerHTML="";}
+function modalAlert(title,body){
+  $("#modalRoot").innerHTML='<div class="modal-mask" data-act="closeModal"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">'+esc(title)+'<span class="x" data-act="closeModal">✕</span></div><div class="m-b">'+body+'</div><div class="m-f"><button class="btn" data-act="closeModal">知道了</button></div></div>';
+}
+function modalConfirm(title,body,cb){
+  $("#modalRoot").innerHTML='<div class="modal-mask"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">'+esc(title)+'</div><div class="m-b">'+body+'</div><div class="m-f"><button class="btn gray" data-act="closeModal">取消</button> <button class="btn danger" id="cfmOk">确认</button></div></div>';
+  $("#cfmOk").onclick=function(){closeModal();cb();};
+  $(".modal-mask").addEventListener("click",function(){closeModal();});
+}
+function modalPrompt(title,body,placeholder,cb){
+  $("#modalRoot").innerHTML='<div class="modal-mask"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">'+esc(title)+'</div><div class="m-b"><p style="margin-bottom:8px">'+body+'</p><input type="text" id="mpInput" value="'+esc(placeholder)+'"></div><div class="m-f"><button class="btn gray" data-act="closeModal">取消</button> <button class="btn" id="mpOk">确定</button></div></div>';
+  $("#mpOk").onclick=function(){var v=$("#mpInput").value.trim();if(!v){toast("请填写内容");return;}closeModal();cb(v);};
+}
+function openReport(rid){
+  var f=findReview(rid);if(!f)return;
+  var chosen=[];
+  $("#modalRoot").innerHTML='<div class="modal-mask"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">举报评价<span class="x" data-act="closeModal">✕</span></div>'+
+    '<div class="m-b"><div class="hint" style="margin-bottom:8px">举报理由（必选，可多选）：</div>'+REPORT_REASONS.map(function(r){return '<div class="opt" data-reason="'+esc(r)+'">'+esc(r)+'</div>';}).join("")+'<textarea id="reportNote" placeholder="补充说明（选填）" style="margin-top:8px"></textarea></div>'+
+    '<div class="m-f"><button class="btn gray" data-act="closeModal">取消</button> <button class="btn" id="reportOk">提交举报</button></div></div>';
+  $all(".opt").forEach(function(o){o.addEventListener("click",function(){o.classList.toggle("sel");});});
+  $("#reportOk").onclick=function(){
+    chosen=$all(".opt.sel").map(function(o){return o.dataset.reason;});
+    if(!chosen.length){toast("请至少选择一个举报理由");return;}
+    f.r.reports++;f.r.reportReasons=f.r.reportReasons.concat(chosen);
+    addLog("学生举报评价 "+rid+"（"+chosen.join("、")+"），当前 "+f.r.reports+" 人举报");
+    pushMsg("admin","收到评价举报","《"+f.c.name+"》一条评价被举报："+chosen.join("、"));
+    closeModal();toast("举报已受理，可在消息中心查看处理结果");render();
+  };
+}
+function openRejectModal(p){
+  var f=findReview(p.rid);
+  var chosen=[];
+  $("#modalRoot").innerHTML='<div class="modal-mask"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">驳回并要求修改<span class="x" data-act="closeModal">✕</span></div>'+
+    '<div class="m-b"><div class="hint" style="margin-bottom:8px">原因类别（学生可见，必选）：</div>'+REJECT_REASONS.map(function(r){return '<div class="opt" data-reason="'+esc(r)+'">'+esc(r)+'</div>';}).join("")+'</div>'+
+    '<div class="m-f"><button class="btn gray" data-act="closeModal">取消</button> <button class="btn danger" id="rjOk">确认驳回</button></div></div>';
+  $all(".opt").forEach(function(o){o.addEventListener("click",function(){o.classList.toggle("sel");});});
+  $("#rjOk").onclick=function(){
+    chosen=$all(".opt.sel").map(function(o){return o.dataset.reason;});
+    if(!chosen.length){toast("请选择驳回原因");return;}
+    if(p.reply==="1"){
+      f.r.reply.status="rejected";f.r.reply.reason=chosen.join("、");
+      addLog("教务驳回教师回复（评价 "+p.rid+"）："+chosen.join("、"));
+      pushMsg("teacher","回复未通过审核","你的回复需修改："+chosen.join("、"));
+    }else{
+      f.r.status="revise";f.r.rejectReasons=chosen;
+      addLog("教务驳回评价 "+p.rid+"："+chosen.join("、"));
+      pushMsg("eligible","评价需修改","你对《"+f.c.name+"》的评价未通过："+chosen.join("、"));
+    }
+    closeModal();toast("已驳回并通知本人");render();
+  };
+}
+function openReplyModal(){
+  var ctx=state.replyCtx,f=findReview(ctx.rid),existing=f.r.reply?f.r.reply.text:"";
+  $("#modalRoot").innerHTML='<div class="modal-mask"><div class="modal" onclick="event.stopPropagation()"><div class="m-h">'+(existing?"编辑":"回复")+'学生评价<span class="x" data-act="closeModal">✕</span></div>'+
+    '<div class="m-b"><div class="hint" style="margin-bottom:8px">回复将以你的真实姓名公开发布，提交后经教务审核；每条评价限 1 条回复，30 天内可编辑 1 次。请勿就观点分歧与学生争执。</div>'+
+    '<textarea id="replyText" style="min-height:100px" placeholder="针对评价中的具体问题作澄清或改进说明……">'+esc(existing)+'</textarea></div>'+
+    '<div class="m-f"><button class="btn gray" data-act="closeModal">取消</button> <button class="btn" id="replyOk">提交审核</button></div></div>';
+  $("#replyOk").onclick=function(){
+    var v=$("#replyText").value.trim();
+    if(v.length<5){toast("回复内容过短");return;}
+    f.r.reply={text:v,status:"pending"};
+    addLog("教师王雪梅提交对评价 "+ctx.rid+" 的回复，待审核");
+    pushMsg("admin","教师回复待审核","《"+f.c.name+"》有一条教师回复待审。");
+    closeModal();toast("回复已提交审核");render();
+  };
+}
+function simReport(cid,rid){
+  var f=findReview(rid);f.r.reports++;f.r.reportReasons.push("其他");
+  addLog("（原型模拟）评价 "+rid+" 新增 1 人举报，当前 "+f.r.reports);
+  if(f.r.reports>=DATA.cfg.reportThreshold&&f.r.status==="published"){
+    f.r.status="hidden";addLog("评价 "+rid+" 达到举报阈值，系统自动临时隐藏");
+    toast("已达 "+DATA.cfg.reportThreshold+" 人举报阈值，系统自动临时隐藏");
+  }else{toast("已模拟 1 人举报（当前 "+f.r.reports+" 人）");}
+  render();
+}
+
+/* 编辑态评价提交：包装 submitReview 动作 */
+var _handleAction=handleAction;
+
+handleAction=function(el,e){
+  var act=el.dataset.act;
+  if(act==="submitReview"&&state.draft&&state.draft.editId){
+    var tx=$("#rvText");if(tx)state.draft.text=tx.value.trim();
+    var d=state.draft;
+    var incomplete=DIMS.some(function(dm){return !d.dims[dm.k];});
+    if(incomplete){toast("请完成四个维度的评分");return;}
+    if(!d.tags.length){toast("请至少选择 1 个标签");return;}
+    if(d.text&&(d.text.length<20||d.text.length>500)){toast("文字评语需 20–500 字，或留空");return;}
+    var f=findReview(d.editId);
+    f.r.dims=Object.assign({},d.dims);f.r.workload=d.workload;f.r.tags=d.tags.slice();f.r.text=d.text;f.r.who=d.anon?"选课学生（匿名）":"社会学系 · 大三（自愿公开年级专业）";
+    f.r.status="pending";delete f.r.rejectReasons;
+    addLog("学生修改评价 "+f.r.id+" 后重新提交，待审核");
+    state.draft=null;state.editingReviewId=null;
+    modalAlert("重新提交成功","评价再次进入待审核，通过后更新公开展示。");
+    go("mine");return;
+  }
+  _handleAction(el,e);
+};
+
+/* ================= 启动 ================= */
+listFilter.cat="全部";
+render();
+</script>
+</body>
+</html>
