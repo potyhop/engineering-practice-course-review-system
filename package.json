@@ -1,0 +1,17 @@
+{
+  "name": "temp_20261024_01",
+  "version": "1.0.0",
+  "description": "工程项目认知实践课程项目 —— 从 0 到 1，运用 AI 技术实现选课参考信息模块。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "docx": "^9.15.3",
+    "pptxgenjs": "^4.0.1"
+  }
+}
