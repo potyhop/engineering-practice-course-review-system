@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>选课参考信息模块 PRD · 课程详情与学生评价</title>
+<style>
+  :root{
+    --ink:#1f2733; --ink-2:#44505f; --ink-3:#6b7686;
+    --line:#e3e7ee; --line-2:#eef1f6; --bg:#f6f8fb; --card:#ffffff;
+    --brand:#2f54eb; --brand-weak:#eef3ff; --brand-ink:#1d39c4;
+    --green:#1f9d6b; --green-weak:#e8f7f0;
+    --amber:#b26100; --amber-weak:#fdf3e3;
+    --red:#cf3b3b; --red-weak:#fdeeee;
+    --purple:#7a4ddb; --purple-weak:#f2edfe;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    font-size:15px;line-height:1.75;}
+  .layout{display:flex;max-width:1180px;margin:0 auto;gap:28px;padding:0 24px;}
+  /* TOC */
+  nav.toc{position:sticky;top:0;align-self:flex-start;width:218px;flex:0 0 218px;
+    max-height:100vh;overflow:auto;padding:22px 0;font-size:13.5px;}
+  nav.toc .toc-title{font-weight:700;color:var(--ink);margin:0 12px 8px;font-size:13px;letter-spacing:.05em;}
+  nav.toc a{display:block;color:var(--ink-2);text-decoration:none;padding:5px 12px;border-left:2px solid transparent;border-radius:0;}
+  nav.toc a:hover{color:var(--brand);background:var(--brand-weak);}
+  nav.toc a.lv2{padding-left:24px;font-size:12.5px;color:var(--ink-3);}
+  main{flex:1;min-width:0;padding:26px 0 80px;}
+  /* Doc header */
+  header.doc{background:linear-gradient(135deg,#1d39c4 0%,#2f54eb 55%,#5b8cff 100%);
+    color:#fff;border-radius:16px;padding:34px 38px;margin-bottom:22px;box-shadow:0 8px 24px rgba(47,84,235,.18);}
+  header.doc h1{margin:0 0 6px;font-size:27px;letter-spacing:.01em;}
+  header.doc .sub{opacity:.92;font-size:14.5px;margin-bottom:18px;}
+  header.doc .meta{display:flex;flex-wrap:wrap;gap:10px;}
+  header.doc .meta span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);
+    border-radius:999px;padding:3px 13px;font-size:12.5px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:26px 32px;margin-bottom:18px;}
+  h2{font-size:21px;margin:0 0 14px;padding-bottom:10px;border-bottom:2px solid var(--line-2);}
+  h2 .num{color:var(--brand);font-variant-numeric:tabular-nums;margin-right:8px;}
+  h3{font-size:16.5px;margin:24px 0 8px;color:var(--ink);}
+  h4{font-size:14.5px;margin:16px 0 6px;color:var(--ink-2);}
+  p{margin:8px 0;}
+  ul,ol{margin:8px 0;padding-left:22px;}
+  li{margin:4px 0;}
+  a.anchor-link{color:var(--brand);text-decoration:none;}
+  code{background:var(--line-2);border-radius:4px;padding:1px 6px;font-size:13px;
+    font-family:Consolas,"Courier New",monospace;color:var(--brand-ink);}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top;}
+  th{background:#f3f6fb;font-weight:600;color:var(--ink);white-space:nowrap;}
+  tr:nth-child(even) td{background:#fafbfe;}
+  .tag-badge{display:inline-block;font-size:11.5px;font-weight:600;border-radius:5px;padding:1px 7px;margin-right:4px;vertical-align:1px;white-space:nowrap;}
+  .b-p0{background:var(--red-weak);color:var(--red);}
+  .b-p1{background:var(--amber-weak);color:var(--amber);}
+  .b-tbd{background:var(--amber-weak);color:var(--amber);border:1px dashed #d9a14f;}
+  .b-asm{background:var(--purple-weak);color:var(--purple);}
+  .b-fr{background:var(--brand-weak);color:var(--brand-ink);}
+  .callout{border-radius:var(--radius);padding:12px 16px;margin:14px 0;font-size:13.8px;border:1px solid;}
+  .callout.tbd{background:var(--amber-weak);border-color:#ecc98f;color:#6b4400;}
+  .callout.asm{background:var(--purple-weak);border-color:#cdb9f5;color:#4a2a96;}
+  .callout.info{background:var(--brand-weak);border-color:#b9ccfb;color:#1d39c4;}
+  .callout strong{display:block;margin-bottom:2px;}
+  .chain{background:#f7f9fd;border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;margin:12px 0;font-size:14px;}
+  .chain span.arr{color:var(--brand);font-weight:700;margin:0 8px;}
+  .fr-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:26px 0 4px;}
+  .fr-head h3{margin:0;}
+  .fr-pill{font-size:12px;font-weight:700;border-radius:6px;padding:2px 9px;}
+  .fr-purpose{color:var(--ink-2);font-size:14px;margin:4px 0 10px;}
+  .kv{font-size:13.8px;}
+  .kv b{color:var(--ink);}
+  /* ===== Prototype frames ===== */
+  .proto{border:1px solid #d3dcec;border-radius:12px;overflow:hidden;margin:16px 0;box-shadow:0 4px 14px rgba(31,39,51,.06);}
+  .proto-bar{background:#eef1f8;padding:9px 14px;display:flex;align-items:center;gap:7px;border-bottom:1px solid #dde3ef;}
+  .proto-bar i{width:11px;height:11px;border-radius:50%;display:inline-block;}
+  .proto-bar i:nth-child(1){background:#ff6159;} .proto-bar i:nth-child(2){background:#ffbd2e;} .proto-bar i:nth-child(3){background:#28c941;}
+  .proto-bar .url{background:#fff;border:1px solid #d3dcec;border-radius:6px;font-size:12px;color:var(--ink-3);
+    padding:2px 12px;margin-left:10px;flex:1;max-width:520px;}
+  .proto-bar .proto-tag{margin-left:auto;font-size:11.5px;color:var(--brand-ink);background:var(--brand-weak);
+    border:1px solid #c6d5fb;border-radius:5px;padding:1px 8px;font-weight:600;}
+  .proto-body{background:#fff;}
+  /* list rows demo */
+  .row-demo{padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:0;}
+  .row-half{padding:6px 18px;}
+  .row-half + .row-half{border-left:1px dashed var(--line);}
+  .row-half h5{margin:0 0 8px;font-size:12.5px;color:var(--ink-3);font-weight:600;letter-spacing:.03em;}
+  .old-row{border:1px solid var(--line);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;background:#fafbfd;}
+  .new-row{border:1px solid #cdd9fb;background:#f8faff;border-radius:8px;padding:10px 14px;margin-bottom:8px;}
+  .new-row .nr-top{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+  .new-row .nr-title{font-weight:600;font-size:14px;}
+  .nr-score{color:#fa8c16;font-weight:700;font-size:14px;white-space:nowrap;}
+  .nr-score small{color:var(--ink-3);font-weight:400;font-size:11px;}
+  .nr-sub{font-size:12px;color:var(--ink-3);margin:3px 0 6px;}
+  .chip{display:inline-block;font-size:11px;border-radius:4px;padding:1px 7px;margin:0 5px 3px 0;background:#eef3ff;color:#2f54eb;border:1px solid #d5e0ff;}
+  .chip.gray{background:#f2f4f8;color:var(--ink-3);border-color:#e3e7ee;}
+  /* detail tabs */
+  .ptabs{display:flex;gap:4px;padding:0 20px;border-bottom:1px solid var(--line);background:#fbfcfe;}
+  .ptab{padding:11px 16px;font-size:13.5px;color:var(--ink-2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;user-select:none;}
+  .ptab.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600;}
+  .ppane{display:none;padding:20px 24px;}
+  .ppane.active{display:block;}
+  .p-course-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:18px 24px 4px;flex-wrap:wrap;}
+  .p-course-h h4{margin:0 0 4px;font-size:18px;}
+  .p-course-h .meta-l{font-size:12.5px;color:var(--ink-3);}
+  .btn{display:inline-block;border-radius:7px;font-size:13px;padding:7px 18px;cursor:pointer;border:1px solid var(--brand);}
+  .btn-primary{background:var(--brand);color:#fff;}
+  .btn-ghost{background:#fff;color:var(--brand);}
+  .btn.disabled{background:#e4e8f0;color:#97a1b1;border-color:#d5dbe6;cursor:not-allowed;}
+  .info-block{margin-bottom:14px;}
+  .info-block .ib-title{font-size:13px;font-weight:700;color:var(--brand-ink);margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+  .info-block p{font-size:13.3px;color:var(--ink-2);margin:3px 0;}
+  .syl-week{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);padding:4px 0;border-bottom:1px dashed var(--line-2);}
+  .syl-week .wk{width:34px;height:22px;background:var(--brand-weak);color:var(--brand-ink);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:0 0 34px;}
+  .teacher-card{display:flex;gap:16px;}
+  .avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#8fb0ff,#2f54eb);
+    color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;flex:0 0 64px;}
+  .teacher-card h4{margin:2px 0 2px;font-size:16px;}
+  .star{color:#faad14;letter-spacing:1px;}
+  .star .off{color:#dde3ee;}
+  .review-summary{display:grid;grid-template-columns:150px 1fr;gap:18px;background:#fafbfe;border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin-bottom:14px;}
+  .score-big{font-size:38px;font-weight:700;color:#fa8c16;line-height:1.1;}
+  .score-big small{display:block;font-size:11.5px;color:var(--ink-3);font-weight:400;}
+  .dim{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:3px 0;}
+  .dim .dl{width:64px;color:var(--ink-2);flex:0 0 64px;}
+  .bar{flex:1;height:7px;background:#edf0f6;border-radius:4px;overflow:hidden;}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffc04a,#fa8c16);border-radius:4px;}
+  .dim .dv{width:30px;text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums;}
+  .tag-cloud{margin:8px 0 4px;}
+  .tag-cloud .chip{cursor:pointer;user-select:none;}
+  .tag-cloud .chip.on{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .review{border:1px solid var(--line);border-radius:9px;padding:12px 15px;margin-bottom:10px;}
+  .review .rv-head{display:flex;justify-content:space-between;font-size:12px;color:var(--ink-3);margin-bottom:4px;}
+  .review .rv-body{font-size:13.2px;color:var(--ink);margin:5px 0;}
+  .reply{margin-top:8px;background:#f4f8ff;border:1px solid #d8e5ff;border-radius:7px;padding:8px 12px;font-size:12.8px;}
+  .reply b{color:var(--brand-ink);}
+  .filter-row{display:flex;gap:8px;align-items:center;font-size:12px;margin-bottom:10px;flex-wrap:wrap;}
+  .filter-row .fchk{border:1px solid var(--line);border-radius:5px;padding:2px 10px;background:#fff;cursor:pointer;color:var(--ink-2);user-select:none;}
+  .filter-row .fchk.on{background:var(--brand-weak);border-color:#b9ccfb;color:var(--brand-ink);font-weight:600;}
+  /* review form */
+  .form-wrap{padding:20px 24px;}
+  .frow{margin-bottom:14px;}
+  .frow label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;}
+  .frow label .req{color:var(--red);}
+  .rate-stars{font-size:22px;color:#faad14;cursor:pointer;letter-spacing:3px;user-select:none;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .seg span{padding:5px 14px;font-size:12.5px;cursor:pointer;background:#fff;color:var(--ink-2);border-right:1px solid var(--line);user-select:none;}
+  .seg span:last-child{border-right:0;}
+  .seg span.on{background:var(--brand);color:#fff;font-weight:600;}
+  textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:13px;
+    font-family:inherit;resize:vertical;min-height:64px;color:var(--ink);}
+  textarea:focus{outline:2px solid #b9ccfb;border-color:var(--brand);}
+  .switch-row{display:flex;align-items:center;gap:8px;font-size:13px;}
+  .toggle{width:36px;height:20px;border-radius:999px;background:var(--brand);position:relative;cursor:pointer;flex:0 0 36px;}
+  .toggle i{position:absolute;top:2px;left:18px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s;}
+  .toggle.off{background:#c4cbd8;} .toggle.off i{left:2px;}
+  .form-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;}
+  .state-switch{font-size:11.5px;color:var(--ink-3);}
+  .state-switch select{font-size:11.5px;border:1px solid var(--line);border-radius:5px;padding:2px 4px;}
+  .pane{display:none;}
+  .pane.active{display:block;}
+  .result-box{border-radius:9px;padding:14px 18px;font-size:13.3px;margin-top:12px;}
+  .result-box.ok{background:var(--green-weak);border:1px solid #a9e0c8;color:#106b47;}
+  .result-box.rej{background:var(--red-weak);border:1px solid #f2bcbc;color:#9c2b2b;}
+  .reason-chip{display:inline-block;background:#fff;border:1px solid #e2a3a3;color:#9c2b2b;border-radius:5px;padding:1px 8px;font-size:11.5px;margin:3px 4px 0 0;}
+  .empty-demo{border:1px dashed #c8d0de;border-radius:9px;background:#fafbfd;padding:18px;text-align:center;color:var(--ink-3);font-size:13px;}
+  .flow-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;}
+  footer.doc-end{text-align:center;color:var(--ink-3);font-size:12.5px;padding:18px 0 0;}
+  @media (max-width:960px){
+    nav.toc{display:none;} .review-summary{grid-template-columns:1fr;} .row-demo{grid-template-columns:1fr;}
+    .row-half + .row-half{border-left:0;border-top:1px dashed var(--line);margin-top:8px;padding-top:14px;}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc">
+  <div class="toc-title">目录</div>
+  <a href="#bg">1 背景与目标</a>
+  <a href="#scope" class="lv2">1.2 范围与边界</a>
+  <a href="#roles">2 角色与对象</a>
+  <a href="#fr">3 功能需求</a>
+  <a href="#fr-01" class="lv2">FR-01 列表与入口</a>
+  <a href="#fr-02" class="lv2">FR-02 课程介绍</a>
+  <a href="#fr-03" class="lv2">FR-03 教师介绍</a>
+  <a href="#fr-04" class="lv2">FR-04 评价展示</a>
+  <a href="#fr-05" class="lv2">FR-05 评价提交</a>
+  <a href="#fr-06" class="lv2">FR-06 审核与治理</a>
+  <a href="#fr-07" class="lv2">FR-07 教师端</a>
+  <a href="#fr-08" class="lv2">FR-08 管理后台</a>
+  <a href="#rules">4 共享规则</a>
+  <a href="#exceptions">5 异常与边界</a>
+  <a href="#openq">6 待确认问题</a>
+</nav>
+
+<main>
+<header class="doc">
+  <h1>选课参考信息模块 产品需求文档</h1>
+  <div class="sub">课程详情 · 教师介绍 · 往期学生评价（在现有选课系统中增强信息展示，不改变选课交易流程）</div>
+  <div class="meta">
+    <span>版本 v0.1（待评审）</span><span>日期 2026-10-24</span>
+    <span>模块名称（暂定）：选课参考信息模块</span><span>文档负责人：[TBD]</span>
+  </div>
+</header>
+
+<!-- ============ 1 ============ -->
+<section id="bg">
+  <h2><span class="num">1</span>背景与目标</h2>
+
+  <h3>1.1 背景</h3>
+  <p><b>已确认事实：</b>当前选课阶段，系统仅向学生展示课程名称，缺少课程内容简介、授课教师介绍、往期同学评价等决策信息，学生选课参考信息不足，容易出现所选课程与自身预期差距较大的问题。</p>
+  <div class="chain">
+    选课期学生只能看到课程名称 <span class="arr">→</span>
+    无法判断课程内容、考核方式、工作量与教师风格 <span class="arr">→</span>
+    凭课程名或传闻做决策 <span class="arr">→</span>
+    实际课堂与预期差距大（退改选、试听后流失、满意度低等表现<span class="tag-badge b-asm">假设 TBD</span>）
+  </div>
+  <p>本模块的产品回应：<b>在学生提交选课决策之前，在同一选课系统内提供结构化的课程介绍、教师介绍与可信赖的往期评价；并让信息随每学期课程开设持续更新。</b></p>
+
+  <h3>1.2 产品目标</h3>
+  <div class="callout info" style="margin-top:6px">
+    <strong>产品目标（正式表述）</strong>
+    优化学校现有选课机制，补充课程与教师信息展示能力，帮助学生在选课阶段获取更完整参考资料，减少选课预期偏差。
+  </div>
+  <p>该目标拆解为四个产品方向，全部通过在<b>现有选课系统内增强信息展示</b>实现，不新增独立的选课交易流程：</p>
+  <table>
+    <tr><th style="width:150px">目标方向</th><th>含义</th></tr>
+    <tr><td>① 优化现有选课机制</td><td>不另建系统、不改变容量/抽签/退改选等既有选课规则，仅在现有选课列表与决策环节补齐信息入口</td></tr>
+    <tr><td>② 补充课程信息</td><td>展示内容简介与大纲、考核方式与成绩构成、先修要求与适配建议、课外工作量</td></tr>
+    <tr><td>③ 补充教师信息</td><td>展示教师背景、研究方向、教学风格，并提供往期学生评价与教师回应</td></tr>
+    <tr><td>④ 减少预期偏差</td><td>让学生选前预期与实际课堂一致：学什么、怎么考、投入多少、是否适合自己，均可提前获知</td></tr>
+  </table>
+  <h4>目标达成的可观察信号（验收时可直接核对，非口号）</h4>
+  <ul>
+    <li><b>G1（对应②④）：</b>学生在提交选课前，可在同一页面查看课程内容与大纲、考核方式与成绩构成、先修与适配建议、授课教师介绍，以及已修读学生的评分、标签与评语。</li>
+    <li><b>G2（对应③，可信前提）：</b>每条评价仅来自实际修读完该课程班次的学生；学生可选择匿名；姓名、学号在任何公开页面均不出现。</li>
+    <li><b>G3（对应③，可信前提）：</b>不当评价内容在发布前被自动拦截或发布后被及时下架，学生可举报，处理结果可反馈；教师可对已发布评价做出一次公开回应。</li>
+    <li><b>G4（对应①，持续运转）：</b>教师可按学期维护本人课程介绍与个人介绍；无教师维护内容的课程有明确占位与教务补录路径，不出现空白页。</li>
+  </ul>
+  <div class="callout tbd"><strong>关于量化目标</strong>「减少选课预期偏差」是方向性结果，本 PRD 不杜撰指标数值。是否以「因不了解课程导致的退改选比例」「课程详情页查看率」「选课期人均查看详情课程数」等作为上线后衡量指标，由教务在评审时确认（见第 6 节 Q10）。</div>
+
+  <h3 id="scope">1.3 范围与边界</h3>
+  <h4>最小完整旅程（P0）</h4>
+  <ul>
+    <li><b>入口条件：</b>学生在选课开放期进入现有选课系统（沿用现有登录与身份）。</li>
+    <li><b>完成 P0 所需动作：</b>
+      <ol>
+        <li>在选课列表看到课程的评分、标签与一句话简介；</li>
+        <li>进入课程详情，查看「课程介绍 / 授课教师 / 学生评价」三类信息；</li>
+        <li>信息不足时有明确的空状态（而非空白）；</li>
+        <li>课程结束、成绩发布后，修读学生收到评价邀请并提交评分与评语；</li>
+        <li>评价经审核后对后续选课学生公开展示；教师可回应；学生可举报，管理员可治理。</li>
+      </ol>
+    </li>
+    <li><b>完成证据：</b>学生浏览详情后，仍通过<b>现有选课操作</b>完成选课；评价提交者可看到自己评价的审核状态（待审核 / 已发布 / 需修改）。</li>
+    <li><b>最重要失败的恢复路径：</b>评价被审核驳回时，系统给出具体原因类别，学生修改后可重新提交，无需重填全部内容。</li>
+  </ul>
+  <h4>P1（本期不做，仅登记）</h4>
+  <ul>
+    <li>多课程横向对比、选课问答区（向教师/学长提问）、「评价有用」投票与按有用度排序；</li>
+    <li>基于培养方案/兴趣的课程推荐与适配度打分；教师数据看板（评分趋势分析）。</li>
+  </ul>
+  <h4>明确不做（范围外）</h4>
+  <ul>
+    <li><b>选课交易本身</b>：课程容量、志愿/抽签、时间冲突检测、抢课、退改选操作均沿用现有选课系统，本模块只做信息展示与评价。</li>
+    <li><b>教务匿名评教</b>：评教数据面向管理、不公开；本模块的评价面向后续选课学生公开展示。两者数据隔离，是否互相引用见 <a href="#openq" class="anchor-link">Q8</a>。</li>
+    <li>成绩查询、考勤、课堂互动等教学环节功能。</li>
+  </ul>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="roles">
+  <h2><span class="num">2</span>角色与核心对象</h2>
+
+  <h3>2.1 角色</h3>
+  <table>
+    <tr><th>角色</th><th>定义</th><th>核心诉求</th></tr>
+    <tr><td>选课学生</td><td>当前处于选课开放期、尚未修读该课程的学生</td><td>选课决策前获得充分、可信的参考信息</td></tr>
+    <tr><td>修读学生</td><td>已修读完某课程班次且成绩已发布的学生（由"选课学生"转化）</td><td>匿名、低负担地分享真实体验</td></tr>
+    <tr><td>授课教师</td><td>当前或历史学期某课程班次的任课教师</td><td>准确介绍课程与自身、对误解性评价作出回应</td></tr>
+    <tr><td>教务管理员</td><td>院系/学校教务内容管理人员</td><td>保证信息完整与内容合规，处理审核与举报</td></tr>
+    <tr><td>系统自动审核</td><td>按敏感词与规则自动处理评价的程序角色</td><td>拦截明显违规内容、分流可疑内容到人工</td></tr>
+  </table>
+
+  <h3>2.2 核心对象</h3>
+  <table>
+    <tr><th>对象</th><th>说明</th><th>关键字段（产品层面）</th></tr>
+    <tr><td>课程班次 <code>Section</code></td><td>某学期开设的某门具体课程，绑定一名授课教师（合班多教师情形见第 5 节）。评价挂在班次上，聚合到课程</td><td>学期、课程名、授课教师、学分/学时、上课时间（沿用现有系统）</td></tr>
+    <tr><td>课程介绍 <code>CourseProfile</code></td><td>教师按班次维护、经审核发布的课程信息</td><td>内容简介、教学目标、课程安排/大纲附件、考核方式与占比、先修要求与适配对象、更新学期；状态：待审核 / 已发布 / 已驳回</td></tr>
+    <tr><td>教师介绍 <code>TeacherProfile</code></td><td>教师的公开介绍页</td><td>姓名、职称、院系（教务同步，只读）；研究方向、教育背景、教学风格自述（教师自填，经审核发布）</td></tr>
+    <tr><td>评价 <code>Review</code></td><td>修读学生对某班次的一次评分与评语，每人每班限一条</td><td>四个维度评分、课外工作量、标签、评语（选填）、是否匿名、修读学期、状态</td></tr>
+    <tr><td>教师回复 <code>TeacherReply</code></td><td>教师对某条已发布评价的唯一公开回应</td><td>回复内容、发布时间、状态（待审核/已发布/教师已删除）</td></tr>
+    <tr><td>举报 <code>Report</code></td><td>任意登录学生对评价的举报记录</td><td>举报类别（必选）、说明（选填）、举报人、处理状态与结果</td></tr>
+  </table>
+
+  <h3>2.3 评价生命周期（统一状态机）</h3>
+  <table>
+    <tr><th>状态</th><th>进入条件</th><th>谁可见</th><th>允许的转移</th></tr>
+    <tr><td>草稿</td><td>学生开始填写但未提交（自动保存）</td><td>仅本人</td><td>提交 → 待审核；删除 → 消失（不保留）</td></tr>
+    <tr><td>待审核</td><td>学生提交评价</td><td>本人（提示审核中）、管理员</td><td>自动/人工通过 → 已发布；命中规则可修改 → 需修改；明确违规 → 已隐藏</td></tr>
+    <tr><td>需修改</td><td>命中可修正类规则并被驳回，附原因类别</td><td>仅本人 + 管理员</td><td>修改后重提 → 待审核；学生放弃 → 保留为草稿 <span class="tag-badge b-asm">假设 TBD</span></td></tr>
+    <tr><td>已发布</td><td>审核通过</td><td>全部用户（按匿名规则展示）</td><td>评价窗口期内学生撤回 → 草稿；举报成立/管理员下架 → 已隐藏</td></tr>
+    <tr><td>已隐藏</td><td>违规判定成立或多人举报触发自动隐藏</td><td>管理员；本人可见"已隐藏及原因"</td><td>管理员复核恢复 → 已发布；维持隐藏（P1 提供学生申诉入口）</td></tr>
+  </table>
+  <div class="callout info"><strong>窗口期规则（一处定义，全局引用）</strong>评价开放窗口为「该班次成绩发布后 <b>[TBD：建议 14 天]</b>」至「下一学期选课开始日」。窗口期内学生可编辑或撤回自己的已发布评价（编辑后重新进入待审核）；窗口期关闭后评价只读，不可再提交。</div>
+</section>
+
+<!-- ============ 3 FR ============ -->
+<section id="fr">
+  <h2><span class="num">3</span>功能需求</h2>
+<p style="color:var(--ink-2);font-size:14px">P0 共 8 个功能模块。每个模块给出目的、触发、处理规则、结果与状态变化、权限与异常；交互复杂的模块附可点击原型，原型标签与正文术语一致。</p>
+
+<!-- FR-01 -->
+<div class="fr-head" id="fr-01"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-01</span><h3>选课列表信息增强与详情入口</h3></div>
+<p class="fr-purpose">让学生在浏览可选课程清单的第一屏就获得决策线索，并能一键进入完整详情。</p>
+<div class="kv">
+  <p><b>触发：</b>学生在选课开放期进入现有选课列表页。</p>
+  <p><b>展示规则：</b>每一行课程在现有信息（课程名、教师、上课时间、容量状态）之外，新增：</p>
+  <ul>
+    <li>综合评分（1–5 分，一位小数）；有效已发布评价不足 <b>N 条（建议 5，[TBD]）</b>时显示「暂无评分」，不显示数字；</li>
+    <li>高频标签至多 3 个（取近两学期被选择次数最多者）；</li>
+    <li>一句话简介：取该班次已发布课程介绍的开头约 60 字 <span class="tag-badge b-asm">假设 TBD</span>；教师未维护时显示「课程介绍待补充」；</li>
+    <li>新开课（无任何历史班次评价）显示「新开课」标记；</li>
+    <li>统一的「查看详情」入口。</li>
+  </ul>
+  <p><b>结果：</b>点击行或「查看详情」进入 FR-02～FR-04 的课程详情页；选课按钮与现有系统完全一致。</p>
+  <p><b>权限：</b>详情页全年可访问 <span class="tag-badge b-asm">假设 TBD</span>；但「选课/退课」按钮仅在现有选课开放期可操作，非开放期置灰并提示开放时间。</p>
+</div>
+
+<div class="proto">
+  <div class="proto-bar"><i></i><i></i><i></i><div class="url">现有选课系统 / 通识选修课列表</div><span class="proto-tag">原型 · FR-01 改造前后</span></div>
+  <div class="proto-body">
+    <div class="row-demo">
+      <div class="row-half">
+        <h5>改造前（现状）</h5>
+        <div class="old-row"><span>社会学导论</span><span class="btn disabled" style="padding:4px 12px">选课</span></div>
+        <div class="old-row"><span>心理学与生活</span><span class="btn disabled" style="padding:4px 12px">选课</span></div>
+        <div class="old-row"><span>数据可视化基础</span><span class="btn disabled" style="padding:4px 12px">选课</span></div>
+        <p style="font-size:12px;color:var(--ink-3);margin:8px 2px 0">仅课程名，无法判断内容、难度与教师风格。</p>
+      </div>
+      <div class="row-half">
+        <h5>改造后（P0）</h5>
+        <div class="new-row">
+          <div class="nr-top"><span class="nr-title">社会学导论</span><span class="nr-score">4.6<small> / 128 条</small></span></div>
+          <div class="nr-sub">王雪梅 · 周三 3–4 节 · 理解社会结构与日常现象的分析视角，训练社会学想象力……</div>
+          <div><span class="chip">课堂讨论多</span><span class="chip">阅读量大</span><span class="chip">适合零基础</span><span class="chip gray">查看详情 ›</span></div>
+        </div>
+        <div class="new-row">
+          <div class="nr-top"><span class="nr-title">心理学与生活</span><span class="nr-score" style="color:var(--ink-3)">暂无评分</span></div>
+          <div class="nr-sub">李晨 · 周二 7–8 节 · 新开课 · 课程介绍待补充</div>
+          <div><span class="chip gray">新开课</span><span class="chip gray">查看详情 ›</span></div>
+        </div>
+        <div class="new-row">
+          <div class="nr-top"><span class="nr-title">数据可视化基础</span><span class="nr-score">4.2<small> / 56 条</small></span></div>
+          <div class="nr-sub">张远 · 周四 1–2 节 · 从数据清洗到图表叙事，期末以作品答辩为主，需要基础表格软件经验……</div>
+          <div><span class="chip">贴近实务</span><span class="chip">作业/作品多</span><span class="chip">需要先修基础</span><span class="chip gray">查看详情 ›</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FR-02 -->
+<div class="fr-head" id="fr-02"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-02</span><h3>课程详情 · 课程介绍</h3></div>
+<p class="fr-purpose">让学生在选课前明确「这门课学什么、怎么考、要投入多少、是否适合我」。</p>
+<div class="kv">
+  <p><b>触发：</b>任意用户从 FR-01 或教师主页进入课程详情。</p>
+  <p><b>内容分区与字段：</b></p>
+</div>
+<table>
+  <tr><th>分区</th><th>字段</th><th>必填</th><th>规则</th></tr>
+  <tr><td>基本信息</td><td>学分、学时、上课时间、校区、容量</td><td>—</td><td>沿用现有选课系统数据，本模块只读</td></tr>
+  <tr><td>内容简介</td><td>300 字以内的课程定位与核心内容 <span class="tag-badge b-tbd">[TBD 字数]</span></td><td>教师发布时必填</td><td>未发布时按 FR-07 由教务补录</td></tr>
+  <tr><td>教学目标</td><td>学完后可获得的知识/能力（条目化）</td><td>选填</td><td>—</td></tr>
+  <tr><td>课程安排</td><td>按周或按章节的主题列表，可附大纲文件（PDF/Word/PPT，大小上限 [TBD]）</td><td>选填</td><td>附件仅允许教务白名单格式</td></tr>
+  <tr><td>考核方式</td><td>考核项（出勤/作业/期中/期末/论文/作品等）及各自占比</td><td>教师发布时必填</td><td>各项占比之和必须等于 100%，否则不允许提交</td></tr>
+  <tr><td>适配说明</td><td>先修要求、适合对象、建议基础、预计每周课外投入</td><td>选填</td><td>—</td></tr>
+  <tr><td>版本标识</td><td>本介绍对应的学期、最近更新时间</td><td>系统生成</td><td>新学期教师未更新时，继续展示上一已发布版本并明确标注「20XX 秋 学期版本，新学期教师暂未更新」</td></tr>
+</table>
+<p><b>版本与状态变化：</b>课程介绍状态沿用 <code>CourseProfile</code> 的 待审核 / 已发布 / 已驳回；审核期间学生继续看到上一已发布版本，首次发布前看到 FR-02 空状态（见第 5 节）。</p>
+
+<!-- FR-03 -->
+<div class="fr-head" id="fr-03"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-03</span><h3>课程详情 · 授课教师介绍</h3></div>
+<p class="fr-purpose">让学生了解「谁来教、擅长什么、什么风格」，降低因师生风格不匹配造成的预期落差。</p>
+<div class="kv">
+  <p><b>内容：</b>头像、姓名、职称、院系（教务数据同步，教师不可改）；研究方向、教育背景、代表成果链接（选填）、教学风格自述与对选课学生的期待（选填）；该教师本学期开课列表与历史课程，可跳转对应详情页。</p>
+  <p><b>展示规则：</b>教师自填内容需经审核发布（同 FR-07）；教务字段缺失时不显示该行；教师全部自填内容为空时，展示「教师暂未填写介绍」并保留教务基础信息，不生成空白标签页。</p>
+  <p><b>权限：</b>教师仅可编辑本人介绍；合班课程按班次展示全部授课教师，每位教师只维护自己的部分。</p>
+</div>
+
+<!-- FR-04 -->
+<div class="fr-head" id="fr-04"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-04</span><h3>课程详情 · 学生评价展示</h3></div>
+<p class="fr-purpose">以聚合、可筛选、可追溯到真实修读者的方式呈现往期体验，同时保护评价人匿名。</p>
+<div class="kv">
+  <p><b>页面结构：</b>上方为聚合区（综合评分、四个维度得分、工作量分布、高频标签），下方为逐条评价列表与筛选器。</p>
+  <p><b>聚合口径（计算规则见 4.3）：</b></p>
+  <ul>
+    <li>综合评分与各维度分：仅统计<b>已发布</b>评价；不足 N 条（建议 5，[TBD]）时不显示数字评分，仅显示「评价不足，暂不显示评分」，评语仍逐条可见；</li>
+    <li>四个维度：<b>内容质量、讲授清晰、学习收获、考核合理</b>，均为 1–5 分；</li>
+    <li><b>课外工作量</b>为独立口径（很少 / 较少 / 适中 / 较多 / 很多），以分布占比展示，不计入综合评分；</li>
+    <li>高频标签按选择人数倒序，展示人数；标签库由教务统一维护（FR-08）。</li>
+  </ul>
+  <p><b>聚合范围：</b>默认聚合该课程跨学期、跨班次的全部已发布评价；当同一课程由不同教师开设时，提供「按授课教师」「按学期」筛选 <span class="tag-badge b-asm">口径假设，见 Q6</span>。</p>
+  <p><b>P0 筛选与排序：</b>按标签筛选（点击标签即过滤，可多选）、「只看有评语」；默认按学期由近及远、同学期按发布时间倒序。按有用度排序、关键词搜索为 P1。</p>
+  <p><b>单条评价卡片字段：</b>匿名展示名（默认「选课学生（匿名）」；学生可选择公开年级/专业等非身份信息，<b>永不公开姓名与学号</b>）、修读学期、四个维度分、工作量、标签、评语（可为空）、发布时间、教师回复（FR-07，折叠在评价下方）、「举报」入口。</p>
+  <p><b>异常：</b>评价被隐藏后立即从所有列表与聚合中剔除；筛选结果为空时显示「当前筛选条件下暂无评价」。</p>
+</div>
+
+<div class="proto">
+  <div class="proto-bar"><i></i><i></i><i></i><div class="url">选课系统 / 课程详情：社会学导论（2026 春 · 王雪梅）</div><span class="proto-tag">可点击原型 · FR-02 / 03 / 04</span></div>
+  <div class="proto-body">
+    <div class="p-course-h">
+      <div>
+        <h4>社会学导论 <span style="font-size:12px;color:var(--ink-3);font-weight:400">通识核心课 · 2 学分 · 周三 3–4 节 · 东校区</span></h4>
+        <div class="meta-l">授课教师：王雪梅 教授｜容量状态：余 23 / 120（现有选课系统提供）｜介绍版本：2025 秋</div>
+      </div>
+      <div><span class="btn btn-ghost">♡ 收藏（P1）</span> <span class="btn btn-primary">去选课（现有系统）</span></div>
+    </div>
+    <div class="ptabs" id="detailTabs">
+      <div class="ptab active" data-pane="p-intro">课程介绍</div>
+      <div class="ptab" data-pane="p-teacher">授课教师</div>
+      <div class="ptab" data-pane="p-review">学生评价 <span style="color:#fa8c16;font-weight:700">4.6</span></div>
+    </div>
+
+    <div class="ppane active" id="p-intro">
+      <div class="info-block">
+        <div class="ib-title">内容简介</div>
+        <p>从个体与社会的关系出发，介绍社会学的基本概念与分析视角，包括社会化、群体与组织、阶层、性别、城市等议题；课程以日常现象为切口，训练学生用社会学想象力解释身边的社会事实。</p>
+      </div>
+      <div class="info-block">
+        <div class="ib-title">课程安排（节选）</div>
+        <div class="syl-week"><span class="wk">W1</span>导论：什么是社会学想象力</div>
+        <div class="syl-week"><span class="wk">W3</span>社会化与自我：我们如何成为"社会人"</div>
+        <div class="syl-week"><span class="wk">W7</span>社会分层与流动（含课堂辩论）</div>
+        <div class="syl-week"><span class="wk">W12</span>城市、空间与日常生活</div>
+        <div class="syl-week"><span class="wk">W16</span>期末小论文答辩</div>
+      </div>
+      <div class="info-block">
+        <div class="ib-title">考核方式与成绩构成（合计 100%）</div>
+        <table style="margin:6px 0">
+          <tr><th>平时出勤与课堂参与</th><th>阅读笔记（4 次）</th><th>期中测验</th><th>期末小论文</th></tr>
+          <tr><td>15%</td><td>25%</td><td>20%</td><td>40%</td></tr>
+        </table>
+      </div>
+      <div class="info-block">
+        <div class="ib-title">适配说明</div>
+        <p>适合零基础、对社会议题有好奇心的同学；每周阅读约 30–50 页；无先修课程要求；课堂讨论占比较高。</p>
+      </div>
+    </div>
+
+    <div class="ppane" id="p-teacher">
+      <div class="teacher-card">
+        <div class="avatar">王</div>
+        <div>
+          <h4>王雪梅 <span style="font-size:12px;color:var(--ink-3);font-weight:400">教授 · 社会学院 · 教务同步信息</span></h4>
+          <div style="margin:4px 0">
+            <span class="chip">研究方向：城市社会学</span><span class="chip">社区研究</span><span class="chip">质性方法</span>
+          </div>
+          <p style="font-size:13px;color:var(--ink-2);margin:6px 0">北京大学社会学博士，长期关注城市更新与基层社区。教学风格自述：「课堂以讨论为主，希望同学带着生活中的观察来上课；阅读材料不少，但我会给导读问题，不考死记硬背。期待愿意表达、也愿意倾听他人的同学。」</p>
+          <p style="font-size:12.5px;color:var(--brand);margin:4px 0;cursor:pointer">本学期课程：社会学导论、城市研究专题 ›</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ppane" id="p-review">
+      <div class="review-summary">
+        <div style="text-align:center">
+          <div class="score-big">4.6<small>综合评分 · 128 条已发布评价</small></div>
+          <div class="star" style="font-size:15px;margin-top:3px">★★★★<span class="off">★</span></div>
+          <div style="font-size:11.5px;color:var(--ink-3);margin-top:6px">工作量分布：适中 52% · 较多 31% · 很多 9%</div>
+        </div>
+        <div>
+          <div class="dim"><span class="dl">内容质量</span><span class="bar"><i style="width:94%"></i></span><span class="dv">4.7</span></div>
+          <div class="dim"><span class="dl">讲授清晰</span><span class="bar"><i style="width:90%"></i></span><span class="dv">4.5</span></div>
+          <div class="dim"><span class="dl">学习收获</span><span class="bar"><i style="width:92%"></i></span><span class="dv">4.6</span></div>
+          <div class="dim"><span class="dl">考核合理</span><span class="bar"><i style="width:88%"></i></span><span class="dv">4.4</span></div>
+          <div class="tag-cloud" style="margin-top:8px">
+            <span style="font-size:11.5px;color:var(--ink-3)">高频标签：</span>
+            <span class="chip" data-tag="课堂讨论多">课堂讨论多 63</span>
+            <span class="chip" data-tag="阅读量大">阅读量大 54</span>
+            <span class="chip" data-tag="适合零基础">适合零基础 47</span>
+            <span class="chip" data-tag="不点名">基本不点名 38</span>
+            <span class="chip" data-tag="论文给分">论文有挑战 29</span>
+          </div>
+        </div>
+      </div>
+      <div class="filter-row">
+        <span style="color:var(--ink-3)">筛选：</span>
+        <span class="fchk" id="chkComment">只看有评语</span>
+        <span class="fchk" data-sel="all">全部教师</span>
+        <span style="margin-left:auto;color:var(--ink-3)">排序：学期最新优先（P0）｜最有用（P1）</span>
+      </div>
+
+      <div class="review" data-tags="课堂讨论多 阅读量大 适合零基础" data-comment="1">
+        <div class="rv-head"><span><b>选课学生（匿名）</b> · 2025 秋 · 工作量：较多</span><span class="star" style="font-size:13px">★★★★★</span></div>
+        <div><span class="chip">课堂讨论多</span><span class="chip">阅读量大</span><span class="chip">适合零基础</span></div>
+        <div class="rv-body">每周围读一篇经典文献并写笔记，开始会累，但期中之后看社会新闻的视角完全不一样。老师不点名，但讨论课不发言会有点尴尬，社恐同学可以先想好转述别人观点再开口。</div>
+        <div class="reply"><b>教师回复 · 王雪梅：</b>谢谢反馈。春季学期起我会在讨论课前发布「发言备选问题」，降低第一次开口的门槛：）</div>
+      </div>
+      <div class="review" data-tags="不点名 论文给分" data-comment="1">
+        <div class="rv-head"><span><b>社会学系 · 大三（学生自愿公开年级专业）</b> · 2025 秋 · 工作量：适中</span><span class="star" style="font-size:13px">★★★★<span class="off">★</span></div>
+        <div><span class="chip">不点名</span><span class="chip">论文给分</span></div>
+        <div class="rv-body">期末论文想拿高分需要真的做田野，老师批注很细。不建议抱着「水通识」心态选，但想认真学东西非常推荐。</div>
+      </div>
+      <div class="review" data-tags="阅读量大" data-comment="0">
+        <div class="rv-head"><span><b>选课学生（匿名）</b> · 2024 秋 · 工作量：很多</span><span class="star" style="font-size:13px">★★★★<span class="off">★</span></div>
+        <div><span class="chip">阅读量大</span></div>
+        <div class="rv-body" style="color:var(--ink-3)">该学生未填写文字评语。</div>
+      </div>
+      <div class="empty-demo" id="filterEmpty" style="display:none">当前筛选条件下暂无评价</div>
+    </div>
+  </div>
+</div>
+
+<!-- FR-05 -->
+<div class="fr-head" id="fr-05"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-05</span><h3>评价征集与提交</h3></div>
+<p class="fr-purpose">让真实修读者以低负担、可匿名的方式产出对下一届有用的评价。</p>
+<div class="kv">
+  <p><b>资格（产品规则）：</b>仅该课程班次中「成绩已发布」的学生可见提交入口；每人每班限 1 条；仅在第 2.3 节定义的评价窗口期内可提交、编辑、撤回。</p>
+  <p><b>入口：</b>成绩发布后的系统通知（站内消息，复用现有通知渠道）+ 课程详情页内「我要评价」按钮（无资格者不显示此按钮）。</p>
+</div>
+<table>
+  <tr><th>字段</th><th>类型/取值</th><th>必填</th><th>校验与规则</th></tr>
+  <tr><td>四维评分</td><td>内容质量 / 讲授清晰 / 学习收获 / 考核合理，各 1–5 星</td><td>必填</td><td>四维均需打分后才能提交</td></tr>
+  <tr><td>课外工作量</td><td>很少 / 较少 / 适中 / 较多 / 很多（单选）</td><td>必填</td><td>—</td></tr>
+  <tr><td>标签</td><td>从教务维护的标签库多选（如：课堂讨论多、阅读量大、作业/论文多、点名频繁、考核透明、适合零基础、需要先修基础、贴近实务…）</td><td>至少 1 个</td><td>单次至多 5 个 <span class="tag-badge b-asm">假设 TBD</span></td></tr>
+  <tr><td>文字评语</td><td>短文本，[TBD：20–500 字]</td><td>选填</td><td>允许仅评分+标签提交；列表中标注「未填写文字评语」</td></tr>
+  <tr><td>匿名设置</td><td>开关，默认开启匿名；关闭后可勾选公开「年级 / 专业」</td><td>必填</td><td>任何设置下都不公开姓名、学号</td></tr>
+</table>
+<p><b>处理与状态变化：</b>表单自动保存草稿（断网或退出不丢内容）；提交后进入「待审核」并跳转结果页，明示「通过后公开展示，通常在 X 个学习日内完成审核 [SLA TBD]」。提交后若该生成绩被撤销（如作弊判定），其评价资格失效，已发布评价自动转为「已隐藏」。</p>
+<p><b>阻断态：</b>无资格学生无入口；重复提交时引导「查看 / 编辑我的评价」；窗口期关闭后评价只读并提示开放时间。</p>
+
+<div class="proto">
+  <div class="proto-bar"><i></i><i></i><i></i><div class="url">消息中心 / 邀请你评价：社会学导论（2025 秋）</div>
+    <span class="proto-tag">可操作原型 · FR-05</span>
+    <span class="state-switch">演示状态：
+      <select id="formStateSel">
+        <option value="filling" selected>填写 / 提交成功</option>
+        <option value="rejected">提交后被驳回（需修改）</option>
+      </select>
+    </span>
+  </div>
+  <div class="proto-body form-wrap">
+    <div id="formPane" class="pane active">
+      <p style="font-size:12.5px;color:var(--ink-3);margin-top:0">你的评价仅在审核通过后公开展示，默认匿名。每人对每门课只能评价一次。</p>
+      <div class="frow">
+        <label><span class="req">*</span> 课程评分（点击星星打分）</label>
+        <div class="kv" style="font-size:12.5px">
+          <div class="dim" style="max-width:420px"><span class="dl">内容质量</span><span class="rate-stars" data-key>★★★★★</span></div>
+          <div class="dim" style="max-width:420px"><span class="dl">讲授清晰</span><span class="rate-stars" data-key>★★★★★</span></div>
+          <div class="dim" style="max-width:420px"><span class="dl">学习收获</span><span class="rate-stars" data-key>★★★★★</span></div>
+          <div class="dim" style="max-width:420px"><span class="dl">考核合理</span><span class="rate-stars" data-key>★★★★★</span></div>
+        </div>
+      </div>
+      <div class="frow">
+        <label><span class="req">*</span> 课外工作量</label>
+        <div class="seg" id="workloadSeg">
+          <span>很少</span><span>较少</span><span class="on">适中</span><span>较多</span><span>很多</span>
+        </div>
+      </div>
+      <div class="frow">
+        <label><span class="req">*</span> 课程标签（1–5 个）</label>
+        <div class="tag-cloud" id="formTags">
+          <span class="chip">课堂讨论多</span><span class="chip">阅读量大</span><span class="chip">作业/论文多</span>
+          <span class="chip">点名频繁</span><span class="chip">考核透明</span><span class="chip">适合零基础</span>
+          <span class="chip">需要先修基础</span><span class="chip">贴近实务</span><span class="chip">节奏偏快</span>
+        </div>
+      </div>
+      <div class="frow">
+        <label>文字评语（选填，20–500 字）</label>
+        <textarea placeholder="真实、具体的体验对下一届同学最有帮助，例如：课程节奏、考核方式、需要投入的时间、给选课同学的建议……"></textarea>
+      </div>
+      <div class="frow switch-row">
+        <span class="toggle" id="anonToggle"><i></i></span>
+        <span><b>匿名评价</b>（默认）：公开展示为「选课学生（匿名）」；关闭后仅可公开年级/专业，不会显示姓名与学号</span>
+      </div>
+      <div class="form-foot">
+        <span style="font-size:12px;color:var(--ink-3)">草稿已自动保存 · 14 天内可编辑或撤回</span>
+        <span><span class="btn btn-ghost" style="margin-right:8px">存草稿</span><span class="btn btn-primary" id="submitReview">提交评价</span></span>
+      </div>
+      <div class="result-box ok" id="submitOk" style="display:none">
+        <b>提交成功，进入待审核。</b>审核通过后将在课程详情页公开展示；审核期间你仍可在窗口期内编辑或撤回。驳回时我们会说明具体原因，你可以修改后重新提交。
+      </div>
+    </div>
+
+    <div id="rejectPane" class="pane">
+      <div class="result-box rej" style="margin-top:0">
+        <b>评价未通过审核，需要修改后重新提交。</b>你的其他内容已保留，无需重填。命中原因：
+        <div style="margin-top:6px">
+          <span class="reason-chip">含联系方式 / 引流信息</span>
+          <span class="reason-chip">针对个人的攻击性表述</span>
+        </div>
+        <p style="margin:8px 0 0;font-size:12.5px">请删除对教师或同学的人身攻击表述及联系方式，围绕课程内容与学习体验评价。规则详见《评价内容规范》。</p>
+        <div style="margin-top:10px"><span class="btn btn-primary">修改后重新提交</span> <span class="btn btn-ghost">暂不修改（存为草稿）</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FR-06 -->
+<div class="fr-head" id="fr-06"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-06</span><h3>评价审核、举报与内容治理</h3></div>
+<p class="fr-purpose">保证公开展示的评价真实、合规、对事不对人，同时给被评价的教师与其他学生救济入口。</p>
+<h4>3.6.1 发布前自动审核</h4>
+<ul>
+  <li>评价提交后先经规则引擎检查：违法违规词、广告或联系方式、人身攻击与侮辱性表述、无意义刷屏/重复字符。</li>
+  <li>命中<b>明确违规</b>（违法、广告引流）→ 直接「已隐藏」，告知原因类别与《内容规范》链接；命中<b>可修正类</b>（攻击性表述、疑似联系方式）→ 「需修改」，附原因，学生修改后重提，不自动判死刑；<b>疑似但不确定</b> → 进入人工审核队列。</li>
+  <li>教师回复（FR-07）适用同一套规则。</li>
+</ul>
+<h4>3.6.2 发布后举报与下架</h4>
+<ul>
+  <li>每条已发布评价提供「举报」入口：举报类别必选（人身攻击 / 广告引流 / 与课程无关 / 抄袭代写信息 / 其他），文字说明选填；同一学生对同一评价只能举报一次，可在个人中心查看处理状态（已受理 / 已处理-已隐藏 / 不成立）。</li>
+  <li>同一评价被 N 名不同学生举报（阈值 [TBD]，建议 3）时自动临时隐藏并进入人工复核；复核不成立则恢复展示，并通知举报人理由（不透露举报人身份）。</li>
+  <li>管理员人工动作：通过、驳回（必选原因类别）、隐藏、恢复；全部操作留痕（操作人、时间、原因）。</li>
+</ul>
+<h4>3.6.3 隐私与身份边界（重要）</h4>
+<ul>
+  <li>学生公开侧：任何页面不出现评价人姓名、学号；匿名评价对教师和其他学生不可追溯身份。</li>
+  <li>教师侧：教师看不到任何评价人的真实身份，也看不到「谁举报了评价」。</li>
+  <li>管理员侧：仅在处理违规调查需要时可查看实名关联，查看动作留痕；是否需要双人审批见 <a href="#openq" class="anchor-link">Q4</a>。</li>
+</ul>
+
+<!-- FR-07 -->
+<div class="fr-head" id="fr-07"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-07</span><h3>教师端：信息维护与评价回复</h3></div>
+<p class="fr-purpose">让教师对课程信息负责、对争议评价有公开澄清渠道，而不是私下干预评价。</p>
+<ul>
+  <li><b>课程介绍维护：</b>每学期开课前（具体时间点由教务配置 [TBD]）教师按班次编辑 FR-02 全部字段，提交后进入「待审核」；审核通过后对学生发布；驳回时附原因，可修改重提。是否允许教师免审直发见 <a href="#openq" class="anchor-link">Q5</a>。</li>
+  <li><b>教师介绍维护：</b>编辑 FR-03 自填字段，同样先审后发；教务同步字段只读，错误时引导联系教务更正。</li>
+  <li><b>回复评价：</b>仅可对「已发布」评价回复；每条评价最多 1 条教师回复，回复以教师真实姓名公开发布（不可匿名）；回复提交后走 FR-06 审核；发布后教师可在 [TBD：建议 30 天] 内编辑一次（重新审核）或删除（删除动作留痕，页面显示「教师已删除回复」或直接收起，二选一 [TBD]）。</li>
+  <li><b>禁止行为（系统层面约束）：</b>教师不能删除、折叠、排序学生评价，不能查看评价人身份，不能以加分/扣分等方式索取或交换好评（属线下管理规范，系统在提交页与教师端展示提示语）。</li>
+  <li><b>消息触达：</b>教师在其课程收到新的已发布评价时收到定期摘要（频率 [TBD：建议每周 1 次 digest]，避免逐条推送施压）；自己的回复/介绍审核结果实时通知。</li>
+</ul>
+
+<!-- FR-08 -->
+<div class="fr-head" id="fr-08"><span class="fr-pill b-p0">P0</span><span class="fr-pill b-fr">FR-08</span><h3>教务管理后台</h3></div>
+<p class="fr-purpose">保障信息完整性与内容合规，是模块冷启动和长期运转的兜底。</p>
+<table>
+  <tr><th>能力</th><th>规则</th></tr>
+  <tr><td>课程介绍审核</td><td>按院系列出待审核课程介绍；通过 / 驳回（必填原因）；可代教师补录内容（标记为「教务代录」并通知教师）</td></tr>
+  <tr><td>内容审核队列</td><td>自动审核分流的人工队列、被举报评价列表；支持按类别、学期、课程筛选；执行隐藏/恢复并填写原因</td></tr>
+  <tr><td>标签库管理</td><td>维护评价标签的名称、启用状态、排序；标签停用后历史评价上不再聚合显示，原始数据保留</td></tr>
+  <tr><td>敏感词与规则管理</td><td>维护敏感词库与处置方式（直接隐藏 / 需修改 / 人工复核）；规则变更留痕</td></tr>
+  <tr><td>评价窗口期配置</td><td>按校历配置评价开放/关闭时间、评分展示门槛 N 条、举报自动隐藏阈值</td></tr>
+  <tr><td>操作留痕</td><td>所有审核、隐藏、恢复、代录、查看实名关联的动作记录操作人、时间、对象、原因，供审计导出</td></tr>
+</table>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="rules">
+  <h2><span class="num">4</span>共享规则（全文唯一定义，各功能引用此处）</h2>
+
+  <h3>4.1 权限矩阵</h3>
+  <table>
+    <tr><th>操作</th><th>选课学生<br>（未修读）</th><th>修读学生<br>（窗口期内）</th><th>授课教师</th><th>教务管理员</th></tr>
+    <tr><td>浏览课程介绍 / 教师介绍 / 已发布评价</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    <tr><td>查看数字综合评分</td><td>✓（满 N 条）</td><td>✓（满 N 条）</td><td>✓（满 N 条）</td><td>✓（不受门槛限制）</td></tr>
+    <tr><td>提交 / 编辑 / 撤回评价</td><td>✗（无入口）</td><td>✓ 本人 1 条，限窗口期</td><td>✗</td><td>✗（不代发评价）</td></tr>
+    <tr><td>举报评价、查看本人举报结果</td><td>✓</td><td>✓</td><td>✓</td><td>—（后台直接处理）</td></tr>
+    <tr><td>维护课程介绍 / 教师介绍</td><td>✗</td><td>✗</td><td>✓（先审后发）</td><td>审核、代录</td></tr>
+    <tr><td>回复评价</td><td>✗</td><td>✗</td><td>✓ 每评价 1 条（先审后发）</td><td>✗</td></tr>
+    <tr><td>隐藏 / 恢复 / 驳回内容</td><td>✗</td><td>✗</td><td>✗</td><td>✓（留痕）</td></tr>
+    <tr><td>标签库、敏感词、窗口期配置</td><td>✗</td><td>✗</td><td>✗</td><td>✓</td></tr>
+    <tr><td>查看评价人实名关联</td><td>仅本人看自己</td><td>仅本人看自己</td><td>✗</td><td>违规调查需要时 ✓（留痕，Q4）</td></tr>
+  </table>
+
+  <h3>4.2 数据归属与展示边界</h3>
+  <ul>
+    <li>评价归属到<b>课程班次</b>；课程页默认按「课程」聚合。跨学期更换授课教师时，每条评价保留其原班次教师信息，学生可用「按授课教师」筛选。</li>
+    <li>合班/多位教师授课：学生评价指向该班次；教师介绍页展示全部任课教师；学生不分别给多位教师打分（P0 不做教师维度拆分，见 Q6）。</li>
+    <li>课程停开：已发布介绍与评价保留可见，列表中标注「本学期停开」，选课按钮置灰。</li>
+  </ul>
+
+  <h3>4.3 评分与标签聚合计算</h3>
+  <ul>
+    <li>单条评价综合分 = 四个维度分的算术平均；课程综合评分 = 全部有效（已发布）评价单条综合分的算术平均，四舍五入保留 1 位小数。</li>
+    <li>各维度分同理独立聚合；课外工作量为分类值，展示各选项人数占比，不参与平均。</li>
+    <li>标签展示选择人数与占比；仅统计已发布评价；评价被隐藏/撤回后其评分、标签即时从聚合中剔除。</li>
+    <li>不满 N 条（建议 5，[TBD]）：数字评分、维度分与标签人数均不展示；文字评价可逐条阅读，避免小样本误导。</li>
+  </ul>
+
+  <h3>4.4 时间规则</h3>
+  <table>
+    <tr><th>时点</th><th>规则</th></tr>
+    <tr><td>选课开放期</td><td>列表与详情全部信息对公选课学生可见（评分是否全程可见见 Q3）；选课操作沿用现有系统时段</td></tr>
+    <tr><td>课程进行中</td><td>不可提交评价（防止情绪化打分与互评干扰）</td></tr>
+    <tr><td>成绩发布后</td><td>向修读学生开放评价入口与通知，窗口 [TBD：建议 14 天] 起算</td></tr>
+    <tr><td>下一学期选课开始日</td><td>评价提交/编辑/撤回关闭；已发布评价继续公开展示</td></tr>
+  </table>
+
+  <h3>4.5 通知规则</h3>
+  <table>
+    <tr><th>事件</th><th>接收人</th><th>渠道/时机</th><th>内容要点</th></tr>
+    <tr><td>评价窗口开启</td><td>修读学生</td><td>成绩发布时，站内消息（复用现有渠道）</td><td>课程名、匿名说明、截止日期</td></tr>
+    <tr><td>评价审核完成</td><td>评价提交学生</td><td>状态变化实时</td><td>已发布 / 需修改（原因类别）/ 已隐藏（原因与 P1 申诉说明）</td></tr>
+    <tr><td>教师回复发布</td><td>对应评价学生</td><td>实时</td><td>教师回复内容与课程链接</td></tr>
+    <tr><td>举报处理完成</td><td>举报人</td><td>处理完成时</td><td>已隐藏 / 不成立及简要理由，不透露其他当事人身份</td></tr>
+    <tr><td>新课程待维护</td><td>授课教师</td><td>排课确定后</td><td>待维护课程清单与截止时间</td></tr>
+    <tr><td>新课程新评价摘要</td><td>授课教师</td><td>定期 digest [TBD：建议每周]</td><td>新增评价数量与入口，不逐条推送</td></tr>
+    <tr><td>人工审核任务</td><td>教务管理员</td><td>进入队列时</td><td>待办数量与类别</td></tr>
+  </table>
+
+  <h3>4.6 内容规范（学生评价与教师回复共同适用）</h3>
+  <ul>
+    <li>允许：基于自身体验的正负向评价、对教学内容与考核方式的具体批评、情绪表达；</li>
+    <li>禁止：违法违规内容、广告与联系方式、针对师生的人身攻击/侮辱/造谣、代写代考等学术不端信息、与课程无关的刷屏内容、泄露他人隐私；</li>
+    <li>争议处理原则：<b>对课程苛刻可以，对个人攻击不行</b>；观点性分歧（「我觉得作业太多」）不构成下架理由。</li>
+  </ul>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="exceptions">
+  <h2><span class="num">5</span>异常与边界场景</h2>
+  <table>
+    <tr><th>场景</th><th>产品行为</th></tr>
+    <tr><td>新开课 / 无任何评价</td><td>列表与详情显示「新开课」「暂无评分」；评价区展示说明文案与「开课后邀请修读同学评价」的预期，不展示假数据或外部评分</td></tr>
+    <tr><td>教师未维护课程介绍</td><td>各字段显示「教师暂未补充」占位；详情顶部提示教务「该课程信息完整度低」并进入 FR-08 待补录清单；距选课开放 [TBD] 仍未维护时向教师与教务催办</td></tr>
+    <tr><td>教师介绍审核中 / 介绍被驳回</td><td>学生继续看到上一已发布版本；首次发布前仅展示教务同步的职称、院系等基础字段</td></tr>
+    <tr><td>评价提交后长时间未审核</td><td>状态保持「待审核」并显示审核时效说明 [SLA TBD]；超 SLA 时队列对教务高亮告警；不默认自动发布 <span class="tag-badge b-asm">假设 TBD</span></td></tr>
+    <tr><td>高峰期（选课开放瞬间）</td><td>评分与聚合信息允许读取缓存（不影响选课交易系统性能，具体缓存时长为技术实现，不在本 PRD 规定）；评价提交不在选课高峰，无此压力</td></tr>
+    <tr><td>学生退课 / 成绩取消</td><td>未发布评价随资格失效不可提交；已发布评价自动隐藏并通知本人；因正常退课产生的隐藏不计入教师违规统计</td></tr>
+    <tr><td>课程换教师、合班、拆班</td><td>评价按原班次保留并标注原教师；按 4.2 提供教师筛选；拆班后历史评价归属原班次，不迁移</td></tr>
+    <tr><td>恶意刷评 / 组织好评</td><td>资格规则保证仅真实修读者可评；异常集中评分（如同分数段短时聚集）进入人工复核队列，具体识别策略属实现层</td></tr>
+    <tr><td>筛选无结果 / 网络失败</td><td>筛选为空显示空状态；加载失败提供重试，不影响现有选课按钮使用</td></tr>
+  </table>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="openq">
+  <h2><span class="num">6</span>待确认问题（影响产品规则，需评审决策）</h2>
+  <table>
+    <tr><th>ID</th><th>问题</th><th>影响</th><th>PRD 中的临时处理</th></tr>
+    <tr><td>Q1</td><td>适用学段与课程类型：高校通识/选修课为主，还是包含专业课、中学选课？</td><td>字段（先修、考核构成）与标签库设计</td><td>按高校通识/选修课场景撰写</td></tr>
+    <tr><td>Q2</td><td>评价资格节点：结课即可评价，还是必须成绩发布后？</td><td>评价窗口期、刷评与情绪分风险</td><td>暂按「成绩发布后」开放</td></tr>
+    <tr><td>Q3</td><td>评分是否在选课开放期全程可见？是否担心高分课挤爆、低分课无人选？</td><td>展示规则与教务管理目标</td><td>暂按全程可见 + N 条门槛</td></tr>
+    <tr><td>Q4</td><td>管理员查看评价人实名关联是否需要双人审批 / 合规依据？</td><td>隐私与治理流程</td><td>暂按「调查需要可查 + 留痕」</td></tr>
+    <tr><td>Q5</td><td>教师维护的课程介绍是否必须先审后发？能否对高信用教师免审？</td><td>FR-07 流程与教务工作量</td><td>暂按全部先审后发</td></tr>
+    <tr><td>Q6</td><td>聚合口径：跨学期跨教师聚合为「课程评分」，还是以班次/教师分为主？</td><td>FR-04 展示与学生决策粒度</td><td>暂按课程聚合 + 教师/学期筛选</td></tr>
+    <tr><td>Q7</td><td>文字评语字数区间、是否设最少字数；标签单次上限；评分展示门槛 N 的具体值</td><td>提交校验与展示</td><td>20–500 字、标签 ≤5、N=5（均为建议值）</td></tr>
+    <tr><td>Q8</td><td>与现有教务匿名评教的关系：数据完全隔离，还是允许教师将评教结论选择性公开？</td><td>数据边界与重复建设</td><td>暂按完全隔离、互不引用</td></tr>
+    <tr><td>Q9</td><td>评价窗口时长、审核 SLA、教师回复编辑期限、举报自动隐藏阈值</td><td>全部时间与阈值类规则</td><td>窗口 14 天 / 回复编辑 30 天 / 举报阈值 3，SLA 待定</td></tr>
+    <tr><td>Q10</td><td>「减少选课预期偏差」是否需要量化衡量？若需要，采用哪些指标及目标值（如退改选比例、详情页查看率、课后预期符合度回访）</td><td>上线后效果评估与验收口径</td><td>本 PRD 仅定义可观察信号 G1–G4，不杜撰指标目标值</td></tr>
+  </table>
+  <div class="callout asm"><strong>阅读约定</strong>文中标注 <span class="tag-badge b-asm">假设 TBD</span> 的内容为推进设计所做的假设，确认后替换；标注 <span class="tag-badge b-tbd">[TBD]</span> 的为必须由业务方给出的取值。本文不含技术架构、接口与数据库设计。</div>
+</section>
+
+<footer class="doc-end">— 选课参考信息模块 PRD v0.1 · 待评审 · 2026-10-24 —</footer>
+</main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // ---- Detail tabs (FR-02/03/04) ----
+  var tabs = document.querySelectorAll('#detailTabs .ptab');
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      tabs.forEach(function(x){x.classList.remove('active');});
+      document.querySelectorAll('.ppane').forEach(function(p){p.classList.remove('active');});
+      t.classList.add('active');
+      document.getElementById(t.dataset.pane).classList.add('active');
+    });
+  });
+
+  // ---- Review page tag filter + "only with comments" ----
+  var activeTags = {};
+  var onlyComment = false;
+  var tagChips = document.querySelectorAll('#p-review .tag-cloud .chip');
+  var reviews = document.querySelectorAll('#p-review .review');
+  var emptyTip = document.getElementById('filterEmpty');
+  function applyFilter(){
+    var visible = 0;
+    reviews.forEach(function(r){
+      var tags = (r.dataset.tags||'').split(' ');
+      var okTag = Object.keys(activeTags).every(function(t){return tags.indexOf(t) > -1;});
+      var okComment = !onlyComment || r.dataset.comment === '1';
+      var show = okTag && okComment;
+      r.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    emptyTip.style.display = visible === 0 ? '' : 'none';
+  }
+  tagChips.forEach(function(c){
+    c.addEventListener('click', function(){
+      var t = c.dataset.tag;
+      if(activeTags[t]){ delete activeTags[t]; c.classList.remove('on'); }
+      else { activeTags[t] = 1; c.classList.add('on'); }
+      applyFilter();
+    });
+  });
+  document.getElementById('chkComment').addEventListener('click', function(){
+    onlyComment = !onlyComment;
+    this.classList.toggle('on', onlyComment);
+    applyFilter();
+  });
+
+  // ---- Review form: state switch ----
+  var formPane = document.getElementById('formPane');
+  var rejectPane = document.getElementById('rejectPane');
+  document.getElementById('formStateSel').addEventListener('change', function(){
+    var rej = this.value === 'rejected';
+    formPane.classList.toggle('active', !rej);
+    rejectPane.classList.toggle('active', rej);
+  });
+
+  // ---- Stars ----
+  document.querySelectorAll('.rate-stars').forEach(function(box){
+    var val = 0;
+    function paint(n){
+      var s = '';
+      for(var i=1;i<=5;i++){ s += i<=n ? '★' : '☆'; }
+      box.textContent = s;
+    }
+    box.addEventListener('click', function(e){
+      var rect = box.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      val = Math.max(1, Math.min(5, Math.ceil(x / (rect.width/5))));
+      paint(val);
+    });
+    paint(0);
+    box.style.color = '#faad14';
+  });
+
+  // ---- Workload segmented control ----
+  document.querySelectorAll('#workloadSeg span').forEach(function(s){
+    s.addEventListener('click', function(){
+      document.querySelectorAll('#workloadSeg span').forEach(function(x){x.classList.remove('on');});
+      s.classList.add('on');
+    });
+  });
+
+  // ---- Form tag multi-select (max 5) ----
+  var chosen = 0;
+  document.querySelectorAll('#formTags .chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      if(c.classList.contains('on')){ c.classList.remove('on'); chosen--; }
+      else if(chosen < 5){ c.classList.add('on'); chosen++; }
+    });
+  });
+
+  // ---- Anonymous toggle ----
+  var tg = document.getElementById('anonToggle');
+  tg.addEventListener('click', function(){ tg.classList.toggle('off'); });
+
+  // ---- Submit result ----
+  document.getElementById('submitReview').addEventListener('click', function(){
+    var ok = document.getElementById('submitOk');
+    ok.style.display = '';
+    ok.scrollIntoView({behavior:'smooth', block:'nearest'});
+  });
+})();
+</script>
+</body>
+</html>
