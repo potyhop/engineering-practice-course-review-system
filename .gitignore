@@ -7,3 +7,7 @@ segs/
 shots/
 msyh.ttc
 _frame.png
+
+voice/pic*.png
+voice/cap*.txt
+voice/seg*.wav
