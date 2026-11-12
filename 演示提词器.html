@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>演示提词器 · 课程详情与评价参考系统</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    height: 100vh; display: flex; flex-direction: column;
+    background: #0E1614; color: #F2FBF9;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    overflow: hidden;
+  }
+  /* 顶部进度条 */
+  .bar { height: 6px; background: #1C2B28; flex: 0 0 auto; }
+  .bar i { display: block; height: 100%; background: #02C39A; transition: width .25s; }
+
+  .top {
+    flex: 0 0 auto; display: flex; align-items: center; gap: 18px;
+    padding: 18px 32px; border-bottom: 1px solid #1C2B28;
+  }
+  .idx {
+    font-size: 15px; color: #02C39A; letter-spacing: 2px; font-weight: 700;
+    padding: 6px 14px; border: 1px solid #027D78; border-radius: 999px;
+  }
+  .title { font-size: 24px; font-weight: 700; color: #fff; }
+  .time { margin-left: auto; font-size: 15px; color: #7FA9A4; }
+
+  /* 主体 */
+  .main {
+    flex: 1 1 auto; display: flex; flex-direction: column;
+    justify-content: center; padding: 0 70px; gap: 34px;
+  }
+  .action {
+    font-size: 21px; color: #79D8C4; line-height: 1.5;
+    border-left: 4px solid #02C39A; padding-left: 18px;
+  }
+  .action::before { content: "操作  "; font-size: 15px; color: #4E7A75; letter-spacing: 2px; }
+  .lines { font-size: 44px; line-height: 1.62; font-weight: 600; letter-spacing: .5px; }
+  .lines em { color: #02C39A; font-style: normal; }
+
+  /* 底部 */
+  .foot {
+    flex: 0 0 auto; padding: 16px 32px; border-top: 1px solid #1C2B28;
+    display: flex; align-items: center; gap: 14px; font-size: 15px; color: #5D8681;
+  }
+  .foot kbd {
+    background: #1C2B28; border: 1px solid #2E4744; border-radius: 6px;
+    padding: 3px 9px; font-family: Consolas, monospace; color: #9FD6D2; font-size: 14px;
+  }
+  .foot .right { margin-left: auto; }
+  .dots { display: flex; gap: 7px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: #26403C; }
+  .dots i.on { background: #02C39A; }
+</style>
+</head>
+<body>
+
+<div class="bar"><i id="prog"></i></div>
+
+<div class="top">
+  <div class="idx" id="idx">01 / 09</div>
+  <div class="title" id="title">开场</div>
+  <div class="time" id="time">约 20 秒</div>
+</div>
+
+<div class="main">
+  <div class="action" id="action"></div>
+  <div class="lines" id="lines"></div>
+</div>
+
+<div class="foot">
+  <kbd>←</kbd><kbd>→</kbd> 翻页　<kbd>空格</kbd> 下一页
+  <div class="dots" id="dots"></div>
+  <div class="right" id="hint">按 → 开始</div>
+</div>
+
+<script>
+var cards = [
+  {
+    title: "开场",
+    time: "约 20 秒",
+    action: "停在课程列表首页，先别动",
+    lines: "老师好，我们组的项目是《课程详情与评价参考系统》。<br><br>选题来自一个真实痛点：选课的时候，系统只告诉我们课程名字和老师名字，这门课讲什么、怎么考核、往届同学觉得怎么样，全都不知道，结果就是选完才发现和自己想的不一样。"
+  },
+  {
+    title: "账号类型说明",
+    time: "约 25 秒",
+    action: "鼠标移到右上角账号切换处，先别点",
+    lines: "系统区分四类账号：<em>选课学生</em>、<em>修读学生</em>、<em>授课教师</em>、<em>教务管理员</em>。<br><br>注册的时候选择账号类型并绑定学号，登录后看到的界面和权限完全不同。原型阶段为了演示方便，我用右上角的账号切换来代替重新登录，效果等同于分别用这四个账号登录。"
+  },
+  {
+    title: "学生账号 · 课程列表",
+    time: "约 30 秒",
+    action: "选择「选课学生」账号，停在列表页，鼠标划过卡片",
+    lines: "现在以<em>学生的账号</em>登录。<br><br>首页就是课程列表，每门课除了名称和老师，还有综合评分、评价数量，以及一行 AI 自动提取的亮点标签，比如「老师耐心」「案例丰富」「作业适中」。<br><br>选课前扫一眼，就能大概判断这门课是不是我想要的。"
+  },
+  {
+    title: "学生账号 · 课程详情",
+    time: "约 35 秒",
+    action: "点开《社会学导论》，依次点三个标签，再点标签做筛选",
+    lines: "点进课程，详情页有三个标签：<em>课程介绍、学生评价、教师介绍</em>。<br><br>课程介绍里有课程内容和考核占比；教师介绍能看到老师的研究方向和授课风格；学生评价里每一条都有四个维度的打分和标签。<br><br>我最关心的点，比如「作业多」，直接点标签筛选，相关评价马上就能筛出来。"
+  },
+  {
+    title: "修读学生 · 提交评价",
+    time: "约 50 秒",
+    action: "切「修读学生」→ 点《数据可视化基础》的写评价 → 先输入违规内容提交 → 改好再提交",
+    lines: "换<em>修读学生的账号</em>登录。只有这门课读完了、成绩发布了的学生，才有资格写评价。<br><br>评价要填四个维度的评分、选一到五个标签，评语是选填，但填了就要在 20 到 500 字之间。<br><br>这里我故意写一句带联系方式的内容提交——系统立刻拦下来了，提示检测到联系方式，驳回修改。这就是我们的 <em>AI 合规预审</em>，它把违规词、联系方式自动分流出去了，人工审核量能降一大截。<br><br>改一句正常的评语再提交，就进入待审核状态。"
+  },
+  {
+    title: "教务账号 · 审核发布",
+    time: "约 40 秒",
+    action: "切「教务」→ 进审核工作台 → 点开刚提交的评价 → 通过发布",
+    lines: "换<em>教务管理员的账号</em>登录。<br><br>教务有一个统一的审核工作台，评价、课程介绍、教师介绍、被举报的内容，分四个队列集中处理。<br><br>刚才那条评价就在待审列表里，点开能看到完整的评分、标签、评语，还有 AI 预审的结论。确认没问题，点通过，评价就正式发布了，学生那边立刻就能看到。"
+  },
+  {
+    title: "教师账号 · 回复评价",
+    time: "约 25 秒",
+    action: "切「王雪梅老师」→ 打开课程 → 找未回复的评价 → 写回复提交",
+    lines: "再换<em>教师的账号</em>登录。<br><br>老师能看到自己课程下的所有评价，对其中某一条做公开回复，解释考核安排或者回应大家的疑问。<br><br>教师回复同样要走审核，这是为了保护学生和老师双方，避免出现不当言论。"
+  },
+  {
+    title: "教务 · 窗口期与代录",
+    time: "约 35 秒",
+    action: "回教务 → 关闭评教窗口 → 切学生看只读 → 切回教务 → 给《心理学与生活》代录简介",
+    lines: "最后演示两个治理能力。<br><br>第一，评教窗口可以关闭。关掉之后，所有评价变成只读，学生不能再提交也不能再改，这样就不会出现非选课期刷评的问题。<br><br>第二，新开的课程如果老师还没来得及写介绍，教务可以直接代录，保证学生选课的时候信息是完整的。"
+  },
+  {
+    title: "收尾",
+    time: "约 15 秒",
+    action: "停在课程列表页，放松",
+    lines: "以上就是系统的完整流程。<br><br>我们的核心思路是：把选课阶段缺失的课程和教师信息补全，用 AI 降低内容生产和审核的成本，再用审核和治理机制保证信息可信。<br><br>演示结束，谢谢老师。"
+  }
+];
+
+var cur = 0;
+
+function render() {
+  var c = cards[cur];
+  document.getElementById("idx").textContent = String(cur + 1).padStart(2, "0") + " / " + String(cards.length).padStart(2, "0");
+  document.getElementById("title").textContent = c.title;
+  document.getElementById("time").textContent = c.time;
+  document.getElementById("action").innerHTML = c.action;
+  document.getElementById("lines").innerHTML = c.lines;
+  document.getElementById("prog").style.width = ((cur + 1) / cards.length * 100) + "%";
+
+  var dots = "";
+  for (var i = 0; i < cards.length; i++) {
+    dots += '<i class="' + (i === cur ? "on" : "") + '"></i>';
+  }
+  document.getElementById("dots").innerHTML = dots;
+
+  document.getElementById("hint").textContent =
+    cur === 0 ? "按 → 开始" :
+    cur === cards.length - 1 ? "最后一页" : "按 → 继续";
+}
+
+function go(n) {
+  cur = Math.max(0, Math.min(cards.length - 1, n));
+  render();
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); go(cur + 1); }
+  if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); go(cur - 1); }
+  if (e.key === "Home") { e.preventDefault(); go(0); }
+  if (e.key === "End") { e.preventDefault(); go(cards.length - 1); }
+});
+
+// 点击左右半屏翻页（手机端用）
+document.querySelector(".main").addEventListener("click", function (e) {
+  if (e.clientX < window.innerWidth / 2) go(cur - 1); else go(cur + 1);
+});
+
+render();
+</script>
+</body>
+</html>
